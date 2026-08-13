@@ -193,6 +193,7 @@
       <input type="text" name="username" placeholder="ชื่อผู้ใช้ (3-24 ตัวอักษร)" required minlength="3" maxlength="24">
       <input type="email" name="email" placeholder="อีเมล" required>
       <input type="password" name="password" placeholder="ตั้งรหัสผ่าน (8 ตัวขึ้นไป)" required minlength="8">
+      <input type="password" name="confirmPassword" placeholder="ยืนยันรหัสผ่านอีกครั้ง" required minlength="8">
       <button type="submit" class="btn btn-primary">สมัครสมาชิก</button>
     </form>
   </div>
@@ -210,7 +211,7 @@
     <a href="#pricing" class="btn btn-primary">เข้าเรียนเลย 🐾</a>
     <a href="#modules" class="btn btn-secondary">ดูเนื้อหาคอร์ส</a>
   </div>
-  <div class="price-note">เริ่มต้นเพียง <b>฿599</b> จ่ายครั้งเดียว ไม่มีรายเดือน ไม่มีค่าใช้จ่ายแอบแฝง</div>
+  <div class="price-note">เริ่มต้นเพียง <b>฿399</b> จ่ายครั้งเดียว ไม่มีรายเดือน ไม่มีค่าใช้จ่ายแอบแฝง</div>
 </section>
 
 <section class="section alt-bg" id="modules">
@@ -349,7 +350,7 @@
       <div class="pricing-card">
         <div class="pricing-badge">เรียนพื้นฐาน</div>
         <div style="font-size:2rem;">🐶</div>
-        <div class="price-tag">฿599 <span>/ ตลอดชีพ</span></div>
+        <div class="price-tag">฿399 <span>/ ตลอดชีพ</span></div>
         <div class="price-sub">เริ่มต้นทำคลิป AI ด้วยตัวเอง</div>
         <ul class="price-features">
           <li>เข้าเรียนคอร์สพื้นฐานครบ 4 โมดูล (ภาพ วิดีโอ เสียง ตัดต่อ)</li>
@@ -363,7 +364,7 @@
       <div class="pricing-card featured">
         <div class="pricing-badge">🔥 ยอดนิยม</div>
         <div style="font-size:2rem;">🐶🎬</div>
-        <div class="price-tag">฿999 <span>/ ตลอดชีพ</span></div>
+        <div class="price-tag">฿799 <span>/ ตลอดชีพ</span></div>
         <div class="price-sub">สำหรับคนอยากทำคลิประดับมืออาชีพ</div>
         <ul class="price-features">
           <li>ทุกอย่างในแพ็กเกจ "เรียนพื้นฐาน" +</li>
@@ -396,8 +397,8 @@
 <script>
 const faqs = [
   { q: "ต้องมีพื้นฐานมาก่อนไหม", a: "ไม่ต้องเลยค่ะ คอร์สนี้ออกแบบมาสำหรับมือใหม่ตั้งแต่ศูนย์ สอนทีละขั้นตอนจนทำคลิปเองได้" },
-  { q: "จ่ายครั้งเดียวจริงไหม มีค่าใช้จ่ายแอบแฝงหรือเปล่า", a: "จ่ายครั้งเดียว เลือกได้ 2 แพ็กเกจ ฿599 (พื้นฐาน) หรือ ฿999 (ขั้นสูง) เข้าเรียนได้ตลอดชีพ ไม่มีรายเดือน ไม่มีค่าต่ออายุ อัปเดตเนื้อหาใหม่ในอนาคตก็เรียนได้ฟรี" },
-  { q: "แพ็กเกจพื้นฐานกับขั้นสูงต่างกันยังไง", a: "แพ็กเกจพื้นฐาน (฿599) ปลดล็อกคอร์สและคลัง Prompt ระดับเริ่มต้นทั้งหมด ส่วนแพ็กเกจขั้นสูง (฿999) ได้ทุกอย่างในพื้นฐาน บวกคลัง Prompt ระดับสูงและเทคนิคทำละคร/ซีรีส์เพิ่มเติม อัปเกรดจากพื้นฐานเป็นขั้นสูงทีหลังได้เสมอ" },
+  { q: "จ่ายครั้งเดียวจริงไหม มีค่าใช้จ่ายแอบแฝงหรือเปล่า", a: "จ่ายครั้งเดียว เลือกได้ 2 แพ็กเกจ ฿399 (พื้นฐาน) หรือ ฿799 (ขั้นสูง) เข้าเรียนได้ตลอดชีพ ไม่มีรายเดือน ไม่มีค่าต่ออายุ อัปเดตเนื้อหาใหม่ในอนาคตก็เรียนได้ฟรี" },
+  { q: "แพ็กเกจพื้นฐานกับขั้นสูงต่างกันยังไง", a: "แพ็กเกจพื้นฐาน (฿399) ปลดล็อกคอร์สและคลัง Prompt ระดับเริ่มต้นทั้งหมด ส่วนแพ็กเกจขั้นสูง (฿799) ได้ทุกอย่างในพื้นฐาน บวกคลัง Prompt ระดับสูงและเทคนิคทำละคร/ซีรีส์เพิ่มเติม อัปเกรดจากพื้นฐานเป็นขั้นสูงทีหลังได้เสมอ" },
   { q: "เรียนผ่านมือถือได้ไหม", a: "ได้ค่ะ ทั้งคอร์สเรียนและผู้ช่วย AI ใช้งานผ่านมือถือได้สบาย ไม่จำเป็นต้องมีคอมพิวเตอร์" },
   { q: "เรียนแบบไหน ต้องเข้าเรียนตามเวลาไหม", a: "เรียนแบบ self-paced เลือกเวลาเรียนเองได้อิสระ ดูซ้ำกี่รอบก็ได้ตลอดชีพ" },
   { q: "ถ้าติดปัญหาระหว่างเรียน ถามใครได้บ้าง", a: "ทักมาสอบถามได้ตลอด ทีมงานน้องหมาพร้อมช่วยเหลือเป็นกันเอง" },
@@ -483,8 +484,14 @@ signupForm.addEventListener('submit', async (e)=>{
   e.preventDefault();
   hideError();
   const fd = new FormData(signupForm);
+  const password = fd.get('password');
+  const confirmPassword = fd.get('confirmPassword');
+  if(password !== confirmPassword){
+    showError('รหัสผ่านทั้งสองช่องไม่ตรงกัน กรุณาตรวจสอบอีกครั้ง');
+    return;
+  }
   try {
-    const data = await apiPost('/api/auth/signup', { username: fd.get('username'), email: fd.get('email'), password: fd.get('password') });
+    const data = await apiPost('/api/auth/signup', { username: fd.get('username'), email: fd.get('email'), password });
     onAuthSuccess(data.token);
   } catch(err){ showError(err.message); }
 });
