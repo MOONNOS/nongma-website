@@ -108,6 +108,37 @@
 
   footer{ padding:40px 24px; text-align:center; color:var(--brown-soft); font-size:.85rem; border-top:1px solid var(--line); }
   footer .logo{ justify-content:center; margin-bottom:10px; }
+
+  /* auth: nav button + user widget */
+  .nav-cta{ border:none; cursor:pointer; font-family:'Kanit'; }
+  .user-widget{ display:none; align-items:center; gap:10px; background:var(--white); border:1px solid var(--line); padding:6px 14px 6px 6px; border-radius:999px; cursor:pointer; position:relative; }
+  .user-widget .avatar{ width:32px; height:32px; border-radius:50%; background:linear-gradient(145deg, var(--gold), var(--coral)); display:flex; align-items:center; justify-content:center; font-size:1rem; }
+  .user-widget .u-name{ font-weight:600; font-size:.86rem; }
+  .user-widget .u-level{ font-size:.72rem; color:var(--brown-soft); }
+  .user-menu{ display:none; position:absolute; top:calc(100% + 8px); right:0; background:var(--white); border:1px solid var(--line); border-radius:14px; box-shadow:0 8px 24px rgba(61,43,31,.12); min-width:220px; padding:14px; z-index:80; text-align:left; }
+  .user-widget.open .user-menu{ display:block; }
+  .user-menu .points-row{ display:flex; justify-content:space-between; font-size:.82rem; color:var(--brown-soft); margin-bottom:10px; }
+  .user-menu .lv-bar{ height:8px; border-radius:999px; background:var(--cream-alt); overflow:hidden; margin-bottom:12px; }
+  .user-menu .lv-bar-fill{ height:100%; background:linear-gradient(90deg, var(--gold), var(--coral)); border-radius:999px; }
+  .user-menu button{ width:100%; background:var(--cream-alt); border:none; padding:9px; border-radius:999px; font-weight:600; font-size:.85rem; cursor:pointer; color:var(--brown); }
+
+  /* auth modal */
+  .modal-backdrop{ display:none; position:fixed; inset:0; background:rgba(61,43,31,.55); z-index:100; align-items:center; justify-content:center; padding:20px; }
+  .modal-backdrop.open{ display:flex; }
+  .modal-box{ background:var(--cream); border-radius:24px; max-width:400px; width:100%; padding:30px 26px; position:relative; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+  .modal-close{ position:absolute; top:16px; right:18px; background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--brown-soft); }
+  .modal-tabs{ display:flex; gap:8px; margin-bottom:20px; background:var(--cream-alt); border-radius:999px; padding:4px; }
+  .modal-tabs button{ flex:1; border:none; background:none; padding:9px; border-radius:999px; font-family:'Kanit'; font-weight:600; font-size:.9rem; cursor:pointer; color:var(--brown-soft); }
+  .modal-tabs button.active{ background:var(--brown); color:var(--cream); }
+  .auth-form{ display:none; flex-direction:column; gap:12px; }
+  .auth-form.active{ display:flex; }
+  .auth-form input{ font-family:'Sarabun'; font-size:.94rem; padding:12px 14px; border-radius:12px; border:1px solid var(--line); background:var(--white); color:var(--brown); }
+  .auth-form input:focus{ outline:2px solid var(--gold); }
+  .auth-form button[type="submit"]{ margin-top:4px; }
+  .auth-error{ display:none; background:#FDECEA; color:#B4443A; font-size:.82rem; padding:10px 12px; border-radius:10px; }
+  .auth-error.show{ display:block; }
+  .modal-title{ font-family:'Kanit'; font-weight:700; font-size:1.2rem; margin-bottom:4px; text-align:center; }
+  .modal-sub{ font-size:.84rem; color:var(--brown-soft); text-align:center; margin-bottom:20px; }
 </style>
 </head>
 <body>
@@ -122,9 +153,44 @@
       <a href="#pricing">ราคา</a>
       <a href="#faq">FAQ</a>
     </nav>
-    <a class="nav-cta" href="#pricing">เข้าเรียนเลย 🐾</a>
+    <button class="nav-cta" id="authTrigger">เข้าสู่ระบบ 🐾</button>
+    <div class="user-widget" id="userWidget">
+      <div class="avatar" id="uwAvatar">🐶</div>
+      <div>
+        <div class="u-name" id="uwName">-</div>
+        <div class="u-level" id="uwLevel">-</div>
+      </div>
+      <div class="user-menu" id="userMenu">
+        <div class="points-row" id="umStatus">สมาชิกระดับ LV1</div>
+        <button id="logoutBtn">ออกจากระบบ</button>
+      </div>
+    </div>
   </div>
 </header>
+
+<div class="modal-backdrop" id="authModal">
+  <div class="modal-box">
+    <button class="modal-close" id="modalClose">&times;</button>
+    <div class="modal-title">ยินดีต้อนรับสู่ถ้ำน้องหมา</div>
+    <div class="modal-sub">เข้าสู่ระบบเพื่อปลดล็อกคลัง Prompt ตามระดับสมาชิกของคุณ</div>
+    <div class="modal-tabs">
+      <button type="button" class="active" data-tab="login">เข้าสู่ระบบ</button>
+      <button type="button" data-tab="signup">สมัครสมาชิก</button>
+    </div>
+    <div class="auth-error" id="authError"></div>
+    <form class="auth-form active" id="loginForm">
+      <input type="email" name="email" placeholder="อีเมล" required>
+      <input type="password" name="password" placeholder="รหัสผ่าน" required>
+      <button type="submit" class="btn btn-primary">เข้าสู่ระบบ</button>
+    </form>
+    <form class="auth-form" id="signupForm">
+      <input type="text" name="username" placeholder="ชื่อผู้ใช้ (3-24 ตัวอักษร)" required minlength="3" maxlength="24">
+      <input type="email" name="email" placeholder="อีเมล" required>
+      <input type="password" name="password" placeholder="ตั้งรหัสผ่าน (8 ตัวขึ้นไป)" required minlength="8">
+      <button type="submit" class="btn btn-primary">สมัครสมาชิก</button>
+    </form>
+  </div>
+</div>
 
 <section class="hero">
   <div class="paw" style="width:70px; top:40px; left:6%; transform:rotate(-18deg);"><svg viewBox="0 0 64 64"><circle cx="20" cy="16" r="8"/><circle cx="44" cy="16" r="8"/><circle cx="8" cy="34" r="7"/><circle cx="56" cy="34" r="7"/><ellipse cx="32" cy="46" rx="18" ry="14"/></svg></div>
@@ -328,6 +394,125 @@ list.querySelectorAll('.faq-item').forEach(item=>{
     if(!wasOpen) item.classList.add('open');
   });
 });
+</script>
+
+<script>
+// ===== เชื่อมต่อกับ backend น้องหมา =====
+const API_BASE = "https://nongma-backend.onrender.com";
+
+const authModal = document.getElementById('authModal');
+const authTrigger = document.getElementById('authTrigger');
+const modalClose = document.getElementById('modalClose');
+const authError = document.getElementById('authError');
+const loginForm = document.getElementById('loginForm');
+const signupForm = document.getElementById('signupForm');
+const userWidget = document.getElementById('userWidget');
+
+function openModal(){ authModal.classList.add('open'); hideError(); }
+function closeModal(){ authModal.classList.remove('open'); }
+function showError(msg){ authError.textContent = msg; authError.classList.add('show'); }
+function hideError(){ authError.textContent = ''; authError.classList.remove('show'); }
+
+authTrigger.addEventListener('click', openModal);
+modalClose.addEventListener('click', closeModal);
+authModal.addEventListener('click', (e)=>{ if(e.target === authModal) closeModal(); });
+
+document.querySelectorAll('.modal-tabs button').forEach(tabBtn=>{
+  tabBtn.addEventListener('click', ()=>{
+    document.querySelectorAll('.modal-tabs button').forEach(b=>b.classList.remove('active'));
+    tabBtn.classList.add('active');
+    document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
+    document.getElementById(tabBtn.dataset.tab + 'Form').classList.add('active');
+    hideError();
+  });
+});
+
+async function apiPost(path, body, token){
+  const headers = { 'Content-Type': 'application/json' };
+  if(token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(API_BASE + path, { method: 'POST', headers, body: JSON.stringify(body) });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+  return data;
+}
+
+async function apiGet(path, token){
+  const headers = {};
+  if(token) headers['Authorization'] = 'Bearer ' + token;
+  const res = await fetch(API_BASE + path, { headers });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || 'เกิดข้อผิดพลาด กรุณาลองใหม่');
+  return data;
+}
+
+loginForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  hideError();
+  const fd = new FormData(loginForm);
+  try {
+    const data = await apiPost('/api/auth/login', { email: fd.get('email'), password: fd.get('password') });
+    onAuthSuccess(data.token);
+  } catch(err){ showError(err.message); }
+});
+
+signupForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  hideError();
+  const fd = new FormData(signupForm);
+  try {
+    const data = await apiPost('/api/auth/signup', { username: fd.get('username'), email: fd.get('email'), password: fd.get('password') });
+    onAuthSuccess(data.token);
+  } catch(err){ showError(err.message); }
+});
+
+function onAuthSuccess(token){
+  localStorage.setItem('nongma_token', token);
+  closeModal();
+  loginForm.reset();
+  signupForm.reset();
+  loadProfile();
+}
+
+async function loadProfile(){
+  const token = localStorage.getItem('nongma_token');
+  if(!token){ showLoggedOut(); return; }
+  try {
+    const me = await apiGet('/api/user/me', token);
+    showLoggedIn(me);
+  } catch(err){
+    localStorage.removeItem('nongma_token');
+    showLoggedOut();
+  }
+}
+
+function showLoggedOut(){
+  authTrigger.style.display = 'inline-flex';
+  userWidget.style.display = 'none';
+}
+
+function showLoggedIn(me){
+  authTrigger.style.display = 'none';
+  userWidget.style.display = 'flex';
+  document.getElementById('uwName').textContent = me.name + ' ' + me.badge;
+  document.getElementById('uwLevel').textContent = me.username;
+  document.getElementById('umStatus').textContent = `LV${me.level} · ${me.name}`;
+}
+
+userWidget.addEventListener('click', (e)=>{
+  if(e.target.id === 'logoutBtn') return;
+  userWidget.classList.toggle('open');
+});
+document.addEventListener('click', (e)=>{
+  if(!userWidget.contains(e.target)) userWidget.classList.remove('open');
+});
+
+document.getElementById('logoutBtn').addEventListener('click', ()=>{
+  localStorage.removeItem('nongma_token');
+  userWidget.classList.remove('open');
+  showLoggedOut();
+});
+
+loadProfile();
 </script>
 
 </body>
