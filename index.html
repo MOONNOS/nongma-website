@@ -375,7 +375,7 @@
           <li>เรียนผ่านมือถือหรือคอมได้</li>
           <li>เรียนซ้ำได้ไม่จำกัดตลอดชีพ</li>
         </ul>
-        <a href="#" class="btn btn-secondary">เข้าฝูงเลย 🐾</a>
+        <button class="btn btn-secondary buy-btn" data-package="PACKAGE_399">เข้าฝูงเลย 🐾</button>
       </div>
       <div class="pricing-card featured">
         <div class="pricing-badge">🔥 ยอดนิยม</div>
@@ -388,7 +388,7 @@
           <li>เทคนิคขั้นสูง: ละคร ซีรีส์ การ์ตูนหลาย EP</li>
           <li>อัปเดตคอร์ส/Prompt ใหม่ในอนาคตฟรี</li>
         </ul>
-        <a href="#" class="btn btn-primary">โตเต็มตัวเลย 🐾</a>
+        <button class="btn btn-primary buy-btn" data-package="PACKAGE_799">โตเต็มตัวเลย 🐾</button>
       </div>
       <div class="pricing-card">
         <div class="pricing-badge">💎 ครั้งเดียว</div>
@@ -402,7 +402,7 @@
           <li>เลือกหัวข้อเจาะลึกได้เอง</li>
           <li>ปรึกษาต่อเนื่องทาง LINE หลังจบคอร์ส</li>
         </ul>
-        <a href="#" class="btn btn-secondary">ฝึกพิเศษเลย →</a>
+        <button class="btn btn-secondary buy-btn" data-package="PACKAGE_3900">ฝึกพิเศษเลย →</button>
       </div>
       <div class="pricing-card">
         <div class="pricing-badge">✨ ขั้นสูงสุด</div>
@@ -416,7 +416,7 @@
           <li>ได้ Template + Workflow ทีมน้องหมาใช้จริง</li>
           <li>ช่องทางปรึกษาพิเศษระยะยาว</li>
         </ul>
-        <a href="#" class="btn btn-secondary">ขึ้นเป็นหัวหน้าฝูง →</a>
+        <button class="btn btn-secondary buy-btn" data-package="PACKAGE_8900">ขึ้นเป็นหัวหน้าฝูง →</button>
       </div>
     </div>
     <div class="pricing-note">
@@ -663,6 +663,40 @@ function renderGrid(){
 }
 
 loadPrompts();
+
+// ===== ปุ่มซื้อแพ็กเกจ =====
+document.querySelectorAll('.buy-btn').forEach(btn=>{
+  btn.addEventListener('click', async ()=>{
+    const packageId = btn.dataset.package;
+    const currentToken = localStorage.getItem('nongma_token');
+
+    if(!currentToken){
+      openModal();
+      return;
+    }
+
+    const original = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'กำลังส่งคำสั่งซื้อ...';
+
+    try{
+      const res = await fetch(API_BASE + '/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + currentToken },
+        body: JSON.stringify({ package_id: packageId }),
+      });
+      const data = await res.json();
+      if(!res.ok) throw new Error(data.error || 'เกิดข้อผิดพลาด');
+
+      alert(data.message + '\n\nดูสถานะคำสั่งซื้อได้ที่แดชบอร์ด > การซื้อของฉัน');
+      window.location.href = 'dashboard.html';
+    } catch(err){
+      alert(err.message);
+      btn.disabled = false;
+      btn.textContent = original;
+    }
+  });
+});
 </script>
 
 </body>
