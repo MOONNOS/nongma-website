@@ -24,7 +24,8 @@
   header{ position:sticky; top:0; z-index:50; background:rgba(255,249,240,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--line); }
   .nav{ display:flex; align-items:center; justify-content:space-between; padding:14px 24px; max-width:1120px; margin:0 auto; }
   .logo{ display:flex; align-items:center; gap:10px; font-family:'Kanit'; font-weight:700; font-size:1.1rem; }
-  .logo-badge{ width:38px; height:38px; border-radius:50%; background:linear-gradient(145deg, var(--gold), var(--coral)); display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow:0 3px 0 var(--gold-dark); }
+  .logo-badge{ width:38px; height:38px; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 0 var(--gold-dark); }
+  .logo-badge img{ width:100%; height:100%; object-fit:cover; }
   .nav-links{ display:flex; gap:24px; font-size:.92rem; font-weight:500; }
   .nav-links a{ color:var(--brown-soft); transition:color .15s; }
   .nav-links a:hover{ color:var(--coral); }
@@ -170,7 +171,7 @@
 
 <header>
   <div class="nav">
-    <div class="logo"><span class="logo-badge">🐶</span> น้องหมาสอนทำคลิป</div>
+    <div class="logo"><span class="logo-badge"><img src="nongma-mascot.png" alt="น้องหมา"></span> น้องหมาสอนทำคลิป</div>
     <nav class="nav-links">
       <a href="#modules">คอร์สเรียน</a>
       <a href="#helpers">ผู้ช่วย AI</a>
@@ -437,7 +438,7 @@
 </section>
 
 <footer>
-  <div class="logo"><span class="logo-badge" style="width:32px;height:32px;font-size:1rem;">🐶</span> น้องหมาสอนทำคลิป</div>
+  <div class="logo"><span class="logo-badge" style="width:32px;height:32px;"><img src="nongma-mascot.png" alt="น้องหมา"></span> น้องหมาสอนทำคลิป</div>
   <p>คอร์สเรียน AI ภาษาไทยครบวงจร โดยทีมผู้ช่วยน้องหมา 🐾</p>
 </footer>
 
