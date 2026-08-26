@@ -81,21 +81,23 @@
   .helper-card p{ font-size:.85rem; color:var(--brown-soft); }
 
   /* pricing */
-  .pricing-grid{ display:grid; grid-template-columns:repeat(2, 1fr); gap:24px; max-width:900px; margin:0 auto; align-items:start; }
-  @media (max-width:760px){ .pricing-grid{ grid-template-columns:1fr; max-width:460px; } }
-  .pricing-card{ background:var(--white); color:var(--brown); border:1px solid var(--line); border-radius:28px; padding:34px 28px; text-align:center; position:relative; overflow:hidden; }
-  .pricing-card::before{ content:"🐾"; position:absolute; font-size:8rem; opacity:.05; right:-20px; top:-20px; transform:rotate(15deg); }
-  .pricing-card.featured{ background:var(--brown); color:var(--cream); transform:translateY(-10px); box-shadow:0 16px 40px rgba(61,43,31,.22); }
+  .pricing-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:18px; max-width:1180px; margin:0 auto; align-items:start; }
+  @media (max-width:1000px){ .pricing-grid{ grid-template-columns:repeat(2, 1fr); max-width:640px; } }
+  @media (max-width:600px){ .pricing-grid{ grid-template-columns:1fr; max-width:400px; } }
+  .pricing-card{ background:var(--white); color:var(--brown); border:1px solid var(--line); border-radius:26px; padding:26px 20px; text-align:center; position:relative; overflow:hidden; }
+  .pricing-card::before{ content:"🐾"; position:absolute; font-size:7rem; opacity:.05; right:-16px; top:-16px; transform:rotate(15deg); }
+  .pricing-card.featured{ background:var(--brown); color:var(--cream); transform:translateY(-8px); box-shadow:0 16px 40px rgba(61,43,31,.22); }
   .pricing-card.featured .price-sub{ color:#E8D8C4; }
-  .pricing-badge{ display:inline-block; background:var(--coral); color:var(--white); font-size:.76rem; font-weight:700; padding:5px 14px; border-radius:999px; margin-bottom:14px; }
+  .pricing-badge{ display:inline-block; background:var(--coral); color:var(--white); font-size:.72rem; font-weight:700; padding:5px 12px; border-radius:999px; margin-bottom:12px; }
   .pricing-card.featured .pricing-badge{ background:var(--gold); color:var(--brown); }
-  .price-tag{ font-family:'Kanit'; font-weight:800; font-size:3rem; margin:14px 0 4px; }
-  .price-tag span{ font-size:1.1rem; font-weight:600; color:#FFD9A0; }
-  .price-sub{ font-size:.85rem; color:#E8D8C4; margin-bottom:26px; }
-  .price-features{ list-style:none; text-align:left; display:flex; flex-direction:column; gap:12px; margin-bottom:28px; }
-  .price-features li{ font-size:.92rem; padding-left:26px; position:relative; }
+  .price-tag{ font-family:'Kanit'; font-weight:800; font-size:2.2rem; margin:10px 0 4px; }
+  .price-tag span{ font-size:.9rem; font-weight:600; color:#FFD9A0; }
+  .price-sub{ font-size:.8rem; color:#E8D8C4; margin-bottom:20px; }
+  .price-features{ list-style:none; text-align:left; display:flex; flex-direction:column; gap:9px; margin-bottom:22px; font-size:.8rem; }
+  .price-features li{ padding-left:22px; position:relative; }
   .price-features li::before{ content:"✓"; position:absolute; left:0; color:var(--gold); font-weight:700; }
-  .pricing-card .btn-primary{ width:100%; }
+  .pricing-card .btn-primary, .pricing-card .btn-secondary{ width:100%; padding:12px 16px; font-size:.85rem; }
+  .pricing-note{ text-align:center; font-size:.85rem; color:var(--brown-soft); margin-top:28px; max-width:640px; margin-left:auto; margin-right:auto; line-height:1.7; }
 
   /* prompt bonus teaser */
   .bonus-box{ background:var(--white); border:1px dashed var(--gold); border-radius:20px; padding:24px; display:flex; align-items:center; gap:18px; justify-content:space-between; flex-wrap:wrap; }
@@ -138,7 +140,7 @@
   .lib-card h4{ font-family:'Kanit'; font-size:1.02rem; }
   .lib-card p{ font-size:.85rem; color:var(--brown-soft); flex:1; }
   .lib-card .lib-code{ font-family:'IBM Plex Mono'; font-size:.74rem; background:var(--cream-alt); border-radius:12px; padding:12px; color:var(--brown); max-height:110px; overflow-y:auto; line-height:1.5; }
-  .lib-card .lib-copy{ background:var(--brown); color:var(--cream); border:none; border-radius:999px; padding:9px; font-family:'Kanit'; font-weight:600; font-size:.85rem; cursor:pointer; }
+  .lib-card .lib-copy{ background:var(--brown); color:var(--cream); border:none; border-radius:999px; padding:9px; font-family:'Kanit'; font-weight:600; font-size:.85rem; cursor:pointer; text-align:center; display:block; text-decoration:none; }
   .lib-card.locked{ opacity:.9; }
   .lib-card .lock-badge{ display:flex; align-items:center; gap:8px; background:var(--cream-alt); border-radius:12px; padding:14px; font-size:.82rem; color:var(--brown-soft); }
   .lib-card .lock-badge .lock-icon{ font-size:1.2rem; }
@@ -343,8 +345,8 @@
   <div class="wrap">
     <div class="section-head">
       <div class="section-eyebrow">คลัง Prompt</div>
-      <h2>คลังพร้อม Prompt สำเร็จรูป</h2>
-      <p>ไม่ต้องคิดเอง มี Prompt สำหรับ Google Flow กด copy ใช้ได้ทันที อัปเดตเพิ่มเรื่อยๆ</p>
+      <h2>คลังผู้ช่วย AI พร้อมสร้างสรรค์ให้ทันที</h2>
+      <p>แต่ละหมวดมีผู้ช่วย AI (Gem) เฉพาะทางรอให้คุณใช้งาน — กดเข้าไปคุยและรับ Prompt พร้อมใช้ได้เลย</p>
     </div>
     <div class="lib-filters" id="libFilters"></div>
     <div class="lib-grid" id="libGrid">
@@ -357,38 +359,69 @@
   <div class="wrap">
     <div class="section-head">
       <div class="section-eyebrow">ราคา</div>
-      <h2>จ่ายครั้งเดียว เรียนได้ตลอดชีพ</h2>
-      <p>เลือกระดับที่ใช่กับคุณ — ไม่มีรายเดือน ไม่มีค่าต่ออายุ อัปเกรดทีหลังได้เสมอ</p>
+      <h2>โครงสร้างราคา 4 ระดับ — เส้นทางฝูงน้องหมา</h2>
+      <p>เลือกระดับที่ใช่กับคุณ — อัปเกรดทีหลังได้เสมอ จ่ายแค่ส่วนต่าง</p>
     </div>
     <div class="pricing-grid">
       <div class="pricing-card">
-        <div class="pricing-badge">เรียนพื้นฐาน</div>
-        <div style="font-size:2rem;">🐶</div>
-        <div class="price-tag">฿399 <span>/ ตลอดชีพ</span></div>
-        <div class="price-sub">เริ่มต้นทำคลิป AI ด้วยตัวเอง</div>
+        <div class="pricing-badge">ระดับ 1</div>
+        <div style="font-size:1.8rem;">🐶</div>
+        <div class="price-tag">฿399</div>
+        <div class="price-sub">ตลอดชีพ · หมาลุยงาน (LV2)</div>
         <ul class="price-features">
-          <li>เข้าเรียนคอร์สพื้นฐานครบ 4 โมดูล (ภาพ วิดีโอ เสียง ตัดต่อ)</li>
+          <li>เข้าเรียนคอร์สพื้นฐานครบ 4 โมดูล</li>
           <li>ใช้งานผู้ช่วย AI ทั้ง 6 ตัวได้ไม่จำกัด</li>
           <li>ปลดล็อกคลัง Prompt ระดับพื้นฐาน</li>
-          <li>เรียนผ่านมือถือหรือคอมพิวเตอร์ก็ได้</li>
+          <li>เรียนผ่านมือถือหรือคอมได้</li>
           <li>เรียนซ้ำได้ไม่จำกัดตลอดชีพ</li>
         </ul>
-        <a href="#" class="btn btn-secondary">เลือกแพ็กเกจนี้</a>
+        <a href="#" class="btn btn-secondary">เข้าฝูงเลย 🐾</a>
       </div>
       <div class="pricing-card featured">
         <div class="pricing-badge">🔥 ยอดนิยม</div>
-        <div style="font-size:2rem;">🐶🎬</div>
-        <div class="price-tag">฿799 <span>/ ตลอดชีพ</span></div>
-        <div class="price-sub">สำหรับคนอยากทำคลิประดับมืออาชีพ</div>
+        <div style="font-size:1.8rem;">🐕</div>
+        <div class="price-tag">฿799</div>
+        <div class="price-sub">ตลอดชีพ · หมาโตเต็มตัว (LV3)</div>
         <ul class="price-features">
-          <li>ทุกอย่างในแพ็กเกจ "เรียนพื้นฐาน" +</li>
-          <li>ปลดล็อกคลัง Prompt ระดับสูงทั้งหมด</li>
+          <li>ทุกอย่างในระดับ "หมาลุยงาน" +</li>
+          <li>ปลดล็อกคลัง Prompt ระดับสูงทั้งหมด (รวม GEM ระบบแม่)</li>
           <li>เทคนิคขั้นสูง: ละคร ซีรีส์ การ์ตูนหลาย EP</li>
           <li>อัปเดตคอร์ส/Prompt ใหม่ในอนาคตฟรี</li>
-          <li>เรียนซ้ำได้ไม่จำกัดตลอดชีพ</li>
         </ul>
-        <a href="#" class="btn btn-primary">เลือกแพ็กเกจนี้ 🐾</a>
+        <a href="#" class="btn btn-primary">โตเต็มตัวเลย 🐾</a>
       </div>
+      <div class="pricing-card">
+        <div class="pricing-badge">💎 ครั้งเดียว</div>
+        <div style="font-size:1.8rem;">🦮</div>
+        <div class="price-tag">฿3,900</div>
+        <div class="price-sub">หมาเก่งพิเศษ (LV4)</div>
+        <ul class="price-features">
+          <li>ทุกอย่างในระดับ "หมาโตเต็มตัว" +</li>
+          <li>เรียนสดตัวต่อตัว 6 ชม. ผ่าน Google Meet</li>
+          <li>เลือกวัน-เวลาเรียนเองได้</li>
+          <li>เลือกหัวข้อเจาะลึกได้เอง</li>
+          <li>ปรึกษาต่อเนื่องทาง LINE หลังจบคอร์ส</li>
+        </ul>
+        <a href="#" class="btn btn-secondary">ฝึกพิเศษเลย →</a>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-badge">✨ ขั้นสูงสุด</div>
+        <div style="font-size:1.8rem;">👑</div>
+        <div class="price-tag">฿8,900</div>
+        <div class="price-sub">หัวหน้าฝูง (LV5)</div>
+        <ul class="price-features">
+          <li>ทุกอย่างในระดับ "หมาเก่งพิเศษ" +</li>
+          <li>เรียนสดตัวต่อตัว 1 วันเต็ม (6-8 ชม.)</li>
+          <li>สอนออกแบบระบบ/Automation ใช้ในธุรกิจจริง</li>
+          <li>ได้ Template + Workflow ทีมน้องหมาใช้จริง</li>
+          <li>ช่องทางปรึกษาพิเศษระยะยาว</li>
+        </ul>
+        <a href="#" class="btn btn-secondary">ขึ้นเป็นหัวหน้าฝูง →</a>
+      </div>
+    </div>
+    <div class="pricing-note">
+      💡 <b>อัปเกรดได้ทุกเมื่อ</b> — จ่ายเฉพาะส่วนต่างของแพ็กเกจที่อัปเกรด ไม่ต้องซื้อใหม่ทั้งหมด<br>
+      🐾 <b>ลองก่อนได้ฟรี</b> — สมัครสมาชิกทดลองใช้ Gem บางตัว + ดูตัวอย่างคอร์สได้ก่อนตัดสินใจซื้อ
     </div>
   </div>
 </section>
@@ -411,10 +444,12 @@
 <script>
 const faqs = [
   { q: "ต้องมีพื้นฐานมาก่อนไหม", a: "ไม่ต้องเลยค่ะ คอร์สนี้ออกแบบมาสำหรับมือใหม่ตั้งแต่ศูนย์ สอนทีละขั้นตอนจนทำคลิปเองได้" },
-  { q: "จ่ายครั้งเดียวจริงไหม มีค่าใช้จ่ายแอบแฝงหรือเปล่า", a: "จ่ายครั้งเดียว เลือกได้ 2 แพ็กเกจ ฿399 (พื้นฐาน) หรือ ฿799 (ขั้นสูง) เข้าเรียนได้ตลอดชีพ ไม่มีรายเดือน ไม่มีค่าต่ออายุ อัปเดตเนื้อหาใหม่ในอนาคตก็เรียนได้ฟรี" },
-  { q: "แพ็กเกจพื้นฐานกับขั้นสูงต่างกันยังไง", a: "แพ็กเกจพื้นฐาน (฿399) ปลดล็อกคอร์สและคลัง Prompt ระดับเริ่มต้นทั้งหมด ส่วนแพ็กเกจขั้นสูง (฿799) ได้ทุกอย่างในพื้นฐาน บวกคลัง Prompt ระดับสูงและเทคนิคทำละคร/ซีรีส์เพิ่มเติม อัปเกรดจากพื้นฐานเป็นขั้นสูงทีหลังได้เสมอ" },
+  { q: "\"ตลอดชีพ\" หมายถึงนานแค่ไหน", a: "ตลอดอายุการให้บริการของเว็บน้องหมา คอร์ส/Gem/เครื่องมือใหม่ในอนาคตได้ฟรีอัตโนมัติในระดับเดียวกัน ไม่มีค่าต่ออายุ" },
+  { q: "อัปเกรดจากระดับ 1 ไประดับ 3 หรือ 4 ได้เลยไหม", a: "ได้ค่ะ จ่ายเฉพาะส่วนต่างจากระดับที่มีอยู่ ไม่ต้องซื้อใหม่ทั้งหมด" },
+  { q: "เรียนตัวต่อตัว (ระดับ 3-4) ทำยังไง", a: "ติดต่อทีมน้องหมาผ่าน LINE แจ้งวัน-เวลาที่สะดวก เลือกหัวข้อที่อยากเรียนได้ เรียนผ่าน Google Meet" },
+  { q: "รับชำระเงินยังไง", a: "โอนผ่านบัญชี / PromptPay / QR Code ส่งรายละเอียดให้ทาง LINE หลังตกลงแพ็กเกจ" },
   { q: "เรียนผ่านมือถือได้ไหม", a: "ได้ค่ะ ทั้งคอร์สเรียนและผู้ช่วย AI ใช้งานผ่านมือถือได้สบาย ไม่จำเป็นต้องมีคอมพิวเตอร์" },
-  { q: "เรียนแบบไหน ต้องเข้าเรียนตามเวลาไหม", a: "เรียนแบบ self-paced เลือกเวลาเรียนเองได้อิสระ ดูซ้ำกี่รอบก็ได้ตลอดชีพ" },
+  { q: "เรียนแบบไหน ต้องเข้าเรียนตามเวลาไหม", a: "ระดับ 1-2 เรียนแบบ self-paced เลือกเวลาเรียนเองได้อิสระ ดูซ้ำกี่รอบก็ได้ตลอดชีพ ส่วนระดับ 3-4 เป็นการเรียนสดตัวต่อตัว นัดวัน-เวลาล่วงหน้า" },
   { q: "ถ้าติดปัญหาระหว่างเรียน ถามใครได้บ้าง", a: "ทักมาสอบถามได้ตลอด ทีมงานน้องหมาพร้อมช่วยเหลือเป็นกันเอง" },
 ];
 
@@ -607,13 +642,16 @@ function renderGrid(){
 
   grid.innerHTML = list.map(p=>{
     if(p.unlocked){
+      const hasGem = p.gem_url && p.gem_url.trim();
+      const btn = hasGem
+        ? `<a class="lib-copy" href="${p.gem_url}" target="_blank" rel="noopener">🔗 เปิดใช้งานผ่าน Gem</a>`
+        : `<button class="lib-copy" disabled style="opacity:.5;cursor:not-allowed;">🐾 เร็วๆ นี้</button>`;
       return `
         <div class="lib-card">
           <span class="lib-cat">${p.category}</span>
           <h4>${p.title}</h4>
           <p>${p.description || ''}</p>
-          <div class="lib-code" id="code-${p.id}">${p.prompt_text}</div>
-          <button class="lib-copy" data-id="${p.id}">📋 คัดลอก Prompt</button>
+          ${btn}
         </div>`;
     }
     const label = LEVEL_LABEL[p.level_required] || `LV${p.level_required}`;
@@ -626,18 +664,6 @@ function renderGrid(){
         <button class="lib-unlock-btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">ดูแพ็กเกจ</button>
       </div>`;
   }).join('');
-
-  grid.querySelectorAll('.lib-copy').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      const id = btn.dataset.id;
-      const text = document.getElementById('code-' + id).textContent;
-      navigator.clipboard.writeText(text).then(()=>{
-        const original = btn.textContent;
-        btn.textContent = '✅ คัดลอกแล้ว!';
-        setTimeout(()=>{ btn.textContent = original; }, 1500);
-      });
-    });
-  });
 }
 
 loadPrompts();
