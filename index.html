@@ -187,6 +187,7 @@
       </div>
       <div class="user-menu" id="userMenu">
         <div class="points-row" id="umStatus">สมาชิกระดับ LV1</div>
+        <a href="dashboard.html" style="display:block; text-align:center; background:var(--brown); color:var(--cream); border-radius:999px; padding:9px; font-weight:600; font-size:.85rem; margin-bottom:8px;">🏠 เข้าแดชบอร์ด</a>
         <button id="logoutBtn">ออกจากระบบ</button>
       </div>
     </div>
@@ -224,7 +225,7 @@
 
   <div class="mascot">🐶</div>
   <div class="eyebrow">🎓 คอร์สเรียน AI ภาษาไทยครบวงจร</div>
-  <h1>เข้าถ้ำน้องหมา<br>เรียน AI ทำคลิปให้ <span class="hl">ครบจบในที่เดียว</span></h1>
+  <h1>ทำคลิปด้วย AI เอง<br>ได้ตั้งแต่<span class="hl">วันนี้</span></h1>
   <p>ตั้งแต่สร้างภาพ ทำวิดีโอ พากย์เสียง ไปจนถึงตัดต่อ พร้อมผู้ช่วย AI ธีมน้องหมาคอยช่วยทุกขั้นตอน จ่ายครั้งเดียว เรียนได้ตลอดชีพ</p>
   <div class="hero-actions">
     <a href="#pricing" class="btn btn-primary">เข้าเรียนเลย 🐾</a>
@@ -547,11 +548,7 @@ signupForm.addEventListener('submit', async (e)=>{
 
 function onAuthSuccess(token){
   localStorage.setItem('nongma_token', token);
-  closeModal();
-  loginForm.reset();
-  signupForm.reset();
-  loadProfile();
-  if(typeof loadPrompts === 'function') loadPrompts();
+  window.location.href = 'dashboard.html';
 }
 
 async function loadProfile(){
