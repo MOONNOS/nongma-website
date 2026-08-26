@@ -85,6 +85,19 @@
   .status-pill.approved{ background:#E7F5EA; color:var(--green); }
   .status-pill.rejected{ background:#FDECEA; color:#B4443A; }
 
+  /* settings */
+  .settings-card{ background:var(--white); border:1px solid var(--line); border-radius:20px; padding:24px; margin-bottom:18px; max-width:440px; }
+  .settings-card h3{ font-size:1.02rem; margin-bottom:14px; }
+  .settings-card form{ display:flex; flex-direction:column; gap:12px; }
+  .settings-card input{ font-family:'Sarabun'; font-size:.92rem; padding:11px 14px; border-radius:12px; border:1px solid var(--line); background:var(--cream); color:var(--brown); }
+  .settings-card input:focus{ outline:2px solid var(--gold); }
+  .btn{ font-family:'Kanit'; font-weight:600; padding:11px 20px; border-radius:999px; font-size:.9rem; border:none; cursor:pointer; }
+  .btn-primary{ background:var(--coral); color:var(--white); }
+  .btn-secondary{ background:var(--cream-alt); color:var(--brown); border:1px solid var(--line); }
+  .settings-msg{ font-size:.82rem; padding:9px 12px; border-radius:10px; margin-bottom:10px; display:none; }
+  .settings-msg.show-ok{ display:block; background:#E7F5EA; color:var(--green); }
+  .settings-msg.show-err{ display:block; background:#FDECEA; color:#B4443A; }
+
   @media (max-width:820px){
     .app{ flex-direction:column; }
     .sidebar{ width:100%; height:auto; position:relative; flex-direction:row; overflow-x:auto; padding:14px 12px; }
@@ -106,7 +119,7 @@
       <button class="nav-item" data-panel="gems"><span class="ic">💎</span> คลัง Gem</button>
       <button class="nav-item" data-panel="profile"><span class="ic">👤</span> โปรไฟล์</button>
       <button class="nav-item" data-panel="orders"><span class="ic">🧾</span> การซื้อของฉัน</button>
-      <button class="nav-item disabled" disabled><span class="ic">⚙️</span> การตั้งค่า <span class="tag">เร็วๆ นี้</span></button>
+      <button class="nav-item" data-panel="settings"><span class="ic">⚙️</span> การตั้งค่า</button>
     </nav>
     <a class="back-link" href="index.html">← กลับหน้าเว็บหลัก</a>
     <div class="sb-profile">
@@ -180,6 +193,34 @@
       </div>
     </section>
 
+    <section class="panel" id="panel-settings">
+      <div class="panel-head">
+        <h1>การตั้งค่า ⚙️</h1>
+        <p>เปลี่ยนรหัสผ่านหรืออีเมลของบัญชี</p>
+      </div>
+
+      <div class="settings-card">
+        <h3>เปลี่ยนรหัสผ่าน</h3>
+        <div class="settings-msg" id="pwMsg"></div>
+        <form id="pwForm">
+          <input type="password" name="currentPassword" placeholder="รหัสผ่านปัจจุบัน" required>
+          <input type="password" name="newPassword" placeholder="รหัสผ่านใหม่ (8 ตัวขึ้นไป)" required minlength="8">
+          <input type="password" name="confirmPassword" placeholder="ยืนยันรหัสผ่านใหม่" required minlength="8">
+          <button type="submit" class="btn btn-primary">บันทึกรหัสผ่านใหม่</button>
+        </form>
+      </div>
+
+      <div class="settings-card">
+        <h3>เปลี่ยนอีเมล</h3>
+        <div class="settings-msg" id="emailMsg"></div>
+        <form id="emailForm">
+          <input type="email" name="newEmail" placeholder="อีเมลใหม่" required>
+          <input type="password" name="currentPassword" placeholder="รหัสผ่านปัจจุบัน (ยืนยันตัวตน)" required>
+          <button type="submit" class="btn btn-secondary">บันทึกอีเมลใหม่</button>
+        </form>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -194,6 +235,14 @@ if(!token){
 async function apiGet(path){
   const headers = { 'Authorization': 'Bearer ' + token };
   const res = await fetch(API_BASE + path, { headers });
+  const data = await res.json().catch(()=>({}));
+  if(!res.ok) throw new Error(data.error || 'เกิดข้อผิดพลาด');
+  return data;
+}
+
+async function apiPatch(path, body){
+  const headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
+  const res = await fetch(API_BASE + path, { method: 'PATCH', headers, body: JSON.stringify(body) });
   const data = await res.json().catch(()=>({}));
   if(!res.ok) throw new Error(data.error || 'เกิดข้อผิดพลาด');
   return data;
@@ -338,6 +387,55 @@ async function loadOrders(){
     el.innerHTML = '<div class="lib-loading">โหลดข้อมูลไม่สำเร็จ ลองรีเฟรชหน้าใหม่ค่ะ</div>';
   }
 }
+
+// ===== Settings forms =====
+function showMsg(el, message, ok){
+  el.textContent = message;
+  el.classList.remove('show-ok', 'show-err');
+  el.classList.add(ok ? 'show-ok' : 'show-err');
+}
+
+document.getElementById('pwForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const msgEl = document.getElementById('pwMsg');
+  const fd = new FormData(e.target);
+  const newPassword = fd.get('newPassword');
+  const confirmPassword = fd.get('confirmPassword');
+
+  if(newPassword !== confirmPassword){
+    showMsg(msgEl, 'รหัสผ่านใหม่ทั้งสองช่องไม่ตรงกัน', false);
+    return;
+  }
+
+  try{
+    const data = await apiPatch('/api/user/change-password', {
+      currentPassword: fd.get('currentPassword'),
+      newPassword,
+    });
+    showMsg(msgEl, data.message, true);
+    e.target.reset();
+  } catch(err){
+    showMsg(msgEl, err.message, false);
+  }
+});
+
+document.getElementById('emailForm').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const msgEl = document.getElementById('emailMsg');
+  const fd = new FormData(e.target);
+
+  try{
+    const data = await apiPatch('/api/user/change-email', {
+      newEmail: fd.get('newEmail'),
+      currentPassword: fd.get('currentPassword'),
+    });
+    showMsg(msgEl, data.message, true);
+    e.target.reset();
+    loadProfile();
+  } catch(err){
+    showMsg(msgEl, err.message, false);
+  }
+});
 
 if(token){
   loadProfile();
