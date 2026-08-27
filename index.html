@@ -81,6 +81,8 @@
   .helper-card h4{ font-size:1rem; margin-bottom:4px; }
   .helper-role{ font-size:.76rem; font-weight:700; color:var(--gold-dark); text-transform:uppercase; letter-spacing:.03em; margin-bottom:8px; }
   .helper-card p{ font-size:.85rem; color:var(--brown-soft); }
+  .helper-card.locked{ opacity:.75; }
+  .helper-card .helper-lock{ margin-top:10px; font-size:.74rem; background:var(--cream-alt); color:var(--brown-soft); padding:5px 12px; border-radius:999px; display:inline-block; }
 
   /* pricing */
   .pricing-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:18px; max-width:1180px; margin:0 auto; align-items:start; }
@@ -303,43 +305,8 @@
       <h2>แนะนำผู้ช่วยประจำคอร์ส</h2>
       <p>น้องหมาแต่ละตัวถนัดคนละด้าน เรียกใช้ได้ตลอดการเรียน</p>
     </div>
-    <div class="helpers">
-      <div class="helper-card">
-        <div class="helper-avatar">📸</div>
-        <h4>น้องเลนส์</h4>
-        <div class="helper-role">ผู้ช่วยสร้างภาพ</div>
-        <p>ช่วยคิด Prompt สร้างภาพให้ตรงสไตล์ที่อยากได้</p>
-      </div>
-      <div class="helper-card">
-        <div class="helper-avatar">🎬</div>
-        <h4>น้องคลิป</h4>
-        <div class="helper-role">ผู้ช่วยวิดีโอ Flow</div>
-        <p>แนะนำ Prompt วิดีโอและมุมกล้องให้คลิปดูโปร</p>
-      </div>
-      <div class="helper-card">
-        <div class="helper-avatar">🎙️</div>
-        <h4>น้องเสียงใส</h4>
-        <div class="helper-role">ผู้ช่วยพากย์เสียง</div>
-        <p>ช่วยเลือกโทนเสียงและแต่งเพลงประกอบคลิป</p>
-      </div>
-      <div class="helper-card">
-        <div class="helper-avatar">✂️</div>
-        <h4>น้องตัดต่อ</h4>
-        <div class="helper-role">ผู้ช่วยตัดต่อ</div>
-        <p>แนะนำจังหวะตัดต่อและเอฟเฟกต์ให้คลิปลื่นไหล</p>
-      </div>
-      <div class="helper-card">
-        <div class="helper-avatar">✍️</div>
-        <h4>น้องแคปชั่น</h4>
-        <div class="helper-role">ผู้ช่วยเขียนสคริปต์</div>
-        <p>ช่วยคิดแคปชั่นและสคริปต์บรรยายให้คลิปน่าติดตาม</p>
-      </div>
-      <div class="helper-card">
-        <div class="helper-avatar">💡</div>
-        <h4>น้องไอเดีย</h4>
-        <div class="helper-role">ผู้ช่วยคิดคอนเทนต์</div>
-        <p>ช่วยระดมไอเดียคลิปเวลาคิดหัวข้อไม่ออก</p>
-      </div>
+    <div class="helpers" id="helpersGrid">
+      <div class="lib-loading">🐾 กำลังโหลดผู้ช่วย AI...</div>
     </div>
   </div>
 </section>
@@ -665,6 +632,41 @@ function renderGrid(){
 }
 
 loadPrompts();
+
+// ===== ผู้ช่วย AI (จากฐานข้อมูล) =====
+async function loadAssistants(){
+  const grid = document.getElementById('helpersGrid');
+  try{
+    const token = localStorage.getItem('nongma_token');
+    const assistants = await apiGet('/api/assistants', token);
+    if(!assistants.length){
+      grid.innerHTML = '<div class="lib-loading">ยังไม่มีผู้ช่วย AI</div>';
+      return;
+    }
+    grid.innerHTML = assistants.map(a=>{
+      if(a.unlocked){
+        return `
+          <div class="helper-card">
+            <div class="helper-avatar">${a.icon}</div>
+            <h4>${a.name}</h4>
+            <div class="helper-role">${a.role}</div>
+            <p>${a.description || ''}</p>
+          </div>`;
+      }
+      return `
+        <div class="helper-card locked">
+          <div class="helper-avatar">${a.icon}</div>
+          <h4>${a.name}</h4>
+          <div class="helper-role">${a.role}</div>
+          <p>${a.description || ''}</p>
+          <span class="helper-lock">🔒 สมัครสมาชิกเพื่อใช้งาน</span>
+        </div>`;
+    }).join('');
+  } catch(err){
+    grid.innerHTML = '<div class="lib-loading">โหลดผู้ช่วย AI ไม่สำเร็จ ลองรีเฟรชหน้าใหม่ค่ะ</div>';
+  }
+}
+loadAssistants();
 
 // ===== ปุ่มซื้อแพ็กเกจ =====
 document.querySelectorAll('.buy-btn').forEach(btn=>{
