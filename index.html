@@ -245,55 +245,8 @@
       <h2>เรียนอะไรบ้างในคอร์สนี้</h2>
       <p>ครบทุกขั้นตอนการทำคลิปด้วย AI ตั้งแต่ศูนย์จนถึงคลิปที่พร้อมโพสต์</p>
     </div>
-    <div class="modules">
-      <div class="module">
-        <div class="module-icon">🎨</div>
-        <div>
-          <h3>สร้างภาพด้วย AI</h3>
-          <p>ปูพื้นฐานก่อนเริ่มทำคลิป ให้ได้ภาพสวยตรงใจทุกครั้ง</p>
-          <ul>
-            <li>เขียน Prompt สร้างภาพให้ตรงสไตล์ที่ต้องการ</li>
-            <li>แต่งภาพ ลบพื้นหลัง ปรับแสงด้วย AI</li>
-            <li>สร้างภาพสินค้า โลโก้ ธัมบ์เนล</li>
-          </ul>
-        </div>
-      </div>
-      <div class="module">
-        <div class="module-icon">🎬</div>
-        <div>
-          <h3>ทำวิดีโอด้วย Google Flow</h3>
-          <p>แปลงไอเดียเป็นคลิปเคลื่อนไหวด้วย Prompt เดียว</p>
-          <ul>
-            <li>เขียน Prompt วิดีโอให้ Flow เข้าใจสิ่งที่อยากได้</li>
-            <li>ต่อหลายคลิปให้เป็นเรื่องราวเดียวกัน</li>
-            <li>คุมมุมกล้อง แสง และอารมณ์ของฉาก</li>
-          </ul>
-        </div>
-      </div>
-      <div class="module">
-        <div class="module-icon">🎙️</div>
-        <div>
-          <h3>พากย์เสียงด้วย AI</h3>
-          <p>ให้คลิปมีเสียงพูด เสียงเพลง ครบโดยไม่ต้องอัดเอง</p>
-          <ul>
-            <li>โคลนเสียงตัวเองไว้พากย์คลิปในอนาคต</li>
-            <li>พากย์เสียงได้หลายภาษา หลายอารมณ์</li>
-            <li>สร้างเพลงประกอบคลิปด้วย AI</li>
-          </ul>
-        </div>
-      </div>
-      <div class="module">
-        <div class="module-icon">✂️</div>
-        <div>
-          <h3>ตัดต่อให้ดูมืออาชีพ</h3>
-          <p>ประกอบทุกอย่างให้เป็นคลิปที่พร้อมโพสต์จริง</p>
-          <ul>
-            <li>ตัดต่อเร็วด้วยเครื่องมือ AI ช่วยตัด</li>
-            <li>ใส่ซับไตเติลอัตโนมัติ แก้ไขง่าย</li>
-            <li>เพิ่มเอฟเฟกต์และจังหวะให้คลิปลื่นไหล</li>
-          </ul>
-        </div>
-      </div>
+    <div class="modules" id="modulesGrid">
+      <div class="lib-loading">🐾 กำลังโหลดคอร์สเรียน...</div>
     </div>
   </div>
 </section>
@@ -667,6 +620,32 @@ async function loadAssistants(){
   }
 }
 loadAssistants();
+
+// ===== คอร์สเรียน (จากฐานข้อมูล) =====
+async function loadCourses(){
+  const grid = document.getElementById('modulesGrid');
+  try{
+    const courses = await apiGet('/api/courses', null);
+    if(!courses.length){
+      grid.innerHTML = '<div class="lib-loading">ยังไม่มีคอร์สเรียน</div>';
+      return;
+    }
+    grid.innerHTML = courses.map(c=>`
+      <div class="module">
+        <div class="module-icon">${c.icon}</div>
+        <div>
+          <h3>${c.title}</h3>
+          <p>${c.description || ''}</p>
+          <ul>
+            ${c.lessons.map(l=>`<li>${l}</li>`).join('')}
+          </ul>
+        </div>
+      </div>`).join('');
+  } catch(err){
+    grid.innerHTML = '<div class="lib-loading">โหลดคอร์สเรียนไม่สำเร็จ ลองรีเฟรชหน้าใหม่ค่ะ</div>';
+  }
+}
+loadCourses();
 
 // ===== ปุ่มซื้อแพ็กเกจ =====
 document.querySelectorAll('.buy-btn').forEach(btn=>{
