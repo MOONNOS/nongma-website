@@ -133,6 +133,7 @@
     <nav>
       <button class="nav-item active" data-panel="overview"><span class="ic">🏠</span> แดชบอร์ด</button>
       <button class="nav-item" data-panel="gems"><span class="ic">💎</span> คลัง Gem</button>
+      <button class="nav-item" data-panel="community"><span class="ic">👥</span> Community</button>
       <button class="nav-item" data-panel="profile"><span class="ic">👤</span> โปรไฟล์</button>
       <button class="nav-item" data-panel="orders"><span class="ic">🧾</span> การซื้อของฉัน</button>
       <button class="nav-item" data-panel="settings"><span class="ic">⚙️</span> การตั้งค่า</button>
@@ -169,6 +170,8 @@
         <div class="info-box"><div class="label">ชื่อผู้ใช้</div><div class="value" id="ovUsername">-</div></div>
         <div class="info-box"><div class="label">อีเมล</div><div class="value" id="ovEmail" style="font-size:.95rem;">-</div></div>
       </div>
+      <h3 style="margin-top:26px; margin-bottom:12px; font-size:1rem;">🔔 การแจ้งเตือนล่าสุด</h3>
+      <div id="notifList"><div class="lib-loading">🐾 กำลังโหลด...</div></div>
     </section>
 
     <section class="panel" id="panel-gems">
@@ -179,6 +182,16 @@
       <div class="lib-filters" id="libFilters"></div>
       <div class="lib-grid" id="libGrid">
         <div class="lib-loading">🐾 กำลังโหลดคลัง Gem...</div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-community">
+      <div class="panel-head">
+        <h1>Community 👥</h1>
+        <p>ช่องทางพูดคุยและติดตามข่าวสารจากทีมน้องหมา</p>
+      </div>
+      <div id="communityList">
+        <div class="lib-loading">🐾 กำลังโหลด...</div>
       </div>
     </section>
 
@@ -266,6 +279,7 @@
         <button class="admin-tab active" data-admin-tab="users">สมาชิก & LV</button>
         <button class="admin-tab" data-admin-tab="packages">แพ็กเกจ</button>
         <button class="admin-tab" data-admin-tab="gems">คลัง Gem</button>
+        <button class="admin-tab" data-admin-tab="logs">Audit Log</button>
       </div>
 
       <div id="adminUsersView">
@@ -294,6 +308,9 @@
           </form>
         </div>
         <div id="adminGemsList"><div class="lib-loading">🐾 กำลังโหลด...</div></div>
+      </div>
+      <div id="adminLogsView" style="display:none;">
+        <div id="adminLogsList"><div class="lib-loading">🐾 กำลังโหลด...</div></div>
       </div>
     </section>
 
@@ -608,6 +625,8 @@ document.querySelectorAll('.admin-tab').forEach(tab=>{
     document.getElementById('adminUsersView').style.display = view === 'users' ? 'block' : 'none';
     document.getElementById('adminPackagesView').style.display = view === 'packages' ? 'block' : 'none';
     document.getElementById('adminGemsView').style.display = view === 'gems' ? 'block' : 'none';
+    document.getElementById('adminLogsView').style.display = view === 'logs' ? 'block' : 'none';
+    if(view === 'logs') loadAdminLogs();
     if(view === 'users') loadAdminUsers();
     if(view === 'packages') loadAdminPackages();
     if(view === 'gems') loadAdminGems();
@@ -735,10 +754,93 @@ async function apiPost(path, body){
   return data;
 }
 
+async function loadAdminLogs(){
+  const el = document.getElementById('adminLogsList');
+  el.innerHTML = '<div class="lib-loading">🐾 กำลังโหลด...</div>';
+  try{
+    const logs = await apiGet('/api/admin-panel/audit-logs');
+    if(!logs.length){
+      el.innerHTML = '<div class="empty-state">ยังไม่มีประวัติการแก้ไข</div>';
+      return;
+    }
+    el.innerHTML = logs.map(l=>{
+      const date = new Date(l.created_at).toLocaleString('th-TH', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+      return `
+        <div class="staff-row">
+          <div class="sr-main">
+            <div class="sr-name">${l.action} — ${l.target || ''}</div>
+            <div class="sr-sub">โดย ${l.admin_name || 'ไม่ทราบ'} · ${date} · ${l.details || ''}</div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(err){
+    el.innerHTML = `<div class="lib-loading">${err.message}</div>`;
+  }
+}
+
+// ===== Community =====
+async function loadCommunity(){
+  const el = document.getElementById('communityList');
+  try{
+    const links = await apiGet('/api/community');
+    if(!links.length){
+      el.innerHTML = '<div class="empty-state">ยังไม่มีช่องทาง Community</div>';
+      return;
+    }
+    el.innerHTML = links.map(l=>{
+      if(l.unlocked){
+        return `
+          <div class="staff-row">
+            <div class="sr-main">
+              <div class="sr-name">${l.icon} ${l.platform}</div>
+            </div>
+            <a class="sr-btn save" href="${l.url}" target="_blank" rel="noopener" style="text-decoration:none;">เข้าร่วม</a>
+          </div>`;
+      }
+      return `
+        <div class="staff-row">
+          <div class="sr-main">
+            <div class="sr-name">${l.icon} ${l.platform}</div>
+            <div class="sr-sub">🔒 ต้องเป็นสมาชิก LV${l.level_required} ขึ้นไป</div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(err){
+    el.innerHTML = `<div class="lib-loading">โหลดไม่สำเร็จ ลองรีเฟรชหน้าใหม่ค่ะ</div>`;
+  }
+}
+
+// ===== Notifications =====
+async function loadNotifications(){
+  const el = document.getElementById('notifList');
+  try{
+    const notifs = await apiGet('/api/notifications');
+    if(!notifs.length){
+      el.innerHTML = '<div class="empty-state">ยังไม่มีการแจ้งเตือน</div>';
+      return;
+    }
+    el.innerHTML = notifs.slice(0, 5).map(n=>{
+      const date = new Date(n.created_at).toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' });
+      const icon = n.type === 'success' ? '✅' : n.type === 'error' ? '⚠️' : 'ℹ️';
+      return `
+        <div class="staff-row">
+          <div class="sr-main">
+            <div class="sr-name">${icon} ${n.message}</div>
+            <div class="sr-sub">${date}</div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(err){
+    el.innerHTML = '<div class="empty-state">ยังไม่มีการแจ้งเตือน</div>';
+  }
+}
+
 if(token){
   loadProfile();
   loadPrompts();
   loadOrders();
+  loadCommunity();
+  loadNotifications();
 }
 </script>
 
