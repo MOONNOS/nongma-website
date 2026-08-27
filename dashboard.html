@@ -98,6 +98,18 @@
   .settings-msg.show-ok{ display:block; background:#E7F5EA; color:var(--green); }
   .settings-msg.show-err{ display:block; background:#FDECEA; color:#B4443A; }
 
+  /* staff panel */
+  .staff-tab{ font-family:'Sarabun'; font-weight:600; font-size:.85rem; padding:8px 18px; border-radius:999px; border:1px solid var(--line); background:var(--white); color:var(--brown-soft); cursor:pointer; }
+  .staff-tab.active{ background:var(--brown); color:var(--cream); border-color:var(--brown); }
+  .staff-row{ background:var(--white); border:1px solid var(--line); border-radius:14px; padding:14px 16px; display:flex; align-items:center; gap:12px; margin-bottom:10px; flex-wrap:wrap; }
+  .staff-row .sr-main{ flex:1; min-width:180px; }
+  .staff-row .sr-name{ font-weight:600; font-size:.92rem; }
+  .staff-row .sr-sub{ font-size:.78rem; color:var(--brown-soft); }
+  .staff-row .sr-actions{ display:flex; gap:8px; }
+  .sr-btn{ font-family:'Kanit'; font-weight:600; font-size:.8rem; padding:8px 14px; border-radius:999px; border:none; cursor:pointer; }
+  .sr-btn.approve{ background:var(--green); color:var(--white); }
+  .sr-btn.reject{ background:#B4443A; color:var(--white); }
+
   @media (max-width:820px){
     .app{ flex-direction:column; }
     .sidebar{ width:100%; height:auto; position:relative; flex-direction:row; overflow-x:auto; padding:14px 12px; }
@@ -120,6 +132,7 @@
       <button class="nav-item" data-panel="profile"><span class="ic">👤</span> โปรไฟล์</button>
       <button class="nav-item" data-panel="orders"><span class="ic">🧾</span> การซื้อของฉัน</button>
       <button class="nav-item" data-panel="settings"><span class="ic">⚙️</span> การตั้งค่า</button>
+      <button class="nav-item" id="staffNavBtn" data-panel="staff" style="display:none; border-top:1px solid var(--line); margin-top:8px; padding-top:19px;"><span class="ic">🛡️</span> Staff Panel</button>
     </nav>
     <a class="back-link" href="index.html">← กลับหน้าเว็บหลัก</a>
     <div class="sb-profile">
@@ -221,6 +234,24 @@
       </div>
     </section>
 
+    <section class="panel" id="panel-staff">
+      <div class="panel-head">
+        <h1>Staff Panel 🛡️</h1>
+        <p>จัดการสมาชิกและตรวจสอบคำสั่งซื้อ (เฉพาะทีมงาน)</p>
+      </div>
+      <div class="lib-filters">
+        <button class="staff-tab active" data-staff-tab="orders">คำสั่งซื้อ</button>
+        <button class="staff-tab" data-staff-tab="users">สมาชิกทั้งหมด</button>
+      </div>
+
+      <div id="staffOrdersView">
+        <div id="staffOrdersList"><div class="lib-loading">🐾 กำลังโหลด...</div></div>
+      </div>
+      <div id="staffUsersView" style="display:none;">
+        <div id="staffUsersList"><div class="lib-loading">🐾 กำลังโหลด...</div></div>
+      </div>
+    </section>
+
   </main>
 </div>
 
@@ -287,6 +318,10 @@ async function loadProfile(){
     document.getElementById('pfEmail').textContent = me.email;
     const created = me.created_at ? new Date(me.created_at).toLocaleDateString('th-TH', { year:'numeric', month:'long', day:'numeric' }) : '-';
     document.getElementById('pfCreated').textContent = created;
+
+    if(me.level >= 6){
+      document.getElementById('staffNavBtn').style.display = 'flex';
+    }
   } catch(err){
     localStorage.removeItem('nongma_token');
     window.location.href = 'index.html';
@@ -436,6 +471,85 @@ document.getElementById('emailForm').addEventListener('submit', async (e)=>{
     showMsg(msgEl, err.message, false);
   }
 });
+
+// ===== Staff Panel =====
+document.querySelectorAll('.staff-tab').forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    document.querySelectorAll('.staff-tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    const view = tab.dataset.staffTab;
+    document.getElementById('staffOrdersView').style.display = view === 'orders' ? 'block' : 'none';
+    document.getElementById('staffUsersView').style.display = view === 'users' ? 'block' : 'none';
+    if(view === 'orders') loadStaffOrders();
+    if(view === 'users') loadStaffUsers();
+  });
+});
+
+async function loadStaffOrders(){
+  const el = document.getElementById('staffOrdersList');
+  el.innerHTML = '<div class="lib-loading">🐾 กำลังโหลด...</div>';
+  try{
+    const orders = await apiGet('/api/staff/orders');
+    if(!orders.length){
+      el.innerHTML = '<div class="empty-state">ยังไม่มีคำสั่งซื้อในระบบ</div>';
+      return;
+    }
+    el.innerHTML = orders.map(o=>{
+      const date = new Date(o.created_at).toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' });
+      const actions = o.status === 'pending'
+        ? `<div class="sr-actions">
+             <button class="sr-btn approve" data-order="${o.id}" data-act="approve">อนุมัติ</button>
+             <button class="sr-btn reject" data-order="${o.id}" data-act="reject">ปฏิเสธ</button>
+           </div>`
+        : `<span class="status-pill ${o.status}">${STATUS_LABEL[o.status] || o.status}</span>`;
+      return `
+        <div class="staff-row">
+          <div class="sr-main">
+            <div class="sr-name">${o.username} — ${o.package_name} (฿${o.price})</div>
+            <div class="sr-sub">${o.email} · สั่งซื้อเมื่อ ${date}</div>
+          </div>
+          ${actions}
+        </div>`;
+    }).join('');
+
+    el.querySelectorAll('.sr-btn').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const orderId = btn.dataset.order;
+        const act = btn.dataset.act;
+        btn.disabled = true;
+        try{
+          await apiPatch(`/api/staff/orders/${orderId}/${act}`, {});
+          loadStaffOrders();
+        } catch(err){
+          alert(err.message);
+          btn.disabled = false;
+        }
+      });
+    });
+  } catch(err){
+    el.innerHTML = `<div class="lib-loading">${err.message}</div>`;
+  }
+}
+
+async function loadStaffUsers(){
+  const el = document.getElementById('staffUsersList');
+  el.innerHTML = '<div class="lib-loading">🐾 กำลังโหลด...</div>';
+  try{
+    const users = await apiGet('/api/staff/users');
+    el.innerHTML = users.map(u=>{
+      const date = new Date(u.created_at).toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' });
+      return `
+        <div class="staff-row">
+          <div class="sr-main">
+            <div class="sr-name">${u.username} · LV${u.level}</div>
+            <div class="sr-sub">${u.email} · สมัครเมื่อ ${date}</div>
+          </div>
+        </div>`;
+    }).join('');
+  } catch(err){
+    el.innerHTML = `<div class="lib-loading">${err.message}</div>`;
+  }
+}
 
 if(token){
   loadProfile();
