@@ -195,7 +195,7 @@
       <a href="#modules">เส้นทางเรียน</a>
       <a href="#breakdown">ตัวอย่างผลลัพธ์</a>
       <a href="#helpers">ผู้ช่วย AI</a>
-      <a href="#prompts">คลัง Prompt</a>
+      <a href="#prompts">คลัง Gem</a>
       <a href="#pricing">ราคา</a>
       <a href="#faq">FAQ</a>
     </nav>
@@ -218,7 +218,7 @@
   <div class="modal-box">
     <button class="modal-close" id="modalClose">&times;</button>
     <div class="modal-title">ยินดีต้อนรับสู่น้องหมาสอนทำคลิป</div>
-    <div class="modal-sub">เข้าสู่ระบบเพื่อปลดล็อกคลัง Prompt ตามระดับสมาชิกของคุณ</div>
+    <div class="modal-sub">เข้าสู่ระบบเพื่อปลดล็อกคลัง Gem ตามระดับสมาชิกของคุณ</div>
     <div class="modal-tabs">
       <button type="button" class="active" data-tab="login">เข้าสู่ระบบ</button>
       <button type="button" data-tab="signup">สมัครสมาชิก</button>
@@ -336,13 +336,13 @@
 <section class="section" id="prompts">
   <div class="wrap">
     <div class="section-head">
-      <div class="section-eyebrow">ผลลัพธ์ที่ได้จริง ไม่ใช่แค่ Prompt เฉยๆ</div>
-      <h2>คลังผู้ช่วย AI พร้อมสร้างคอนเทนต์ให้ทันที</h2>
-      <p>แต่ละตัวคือผู้ช่วยเฉพาะทางที่ช่วยแตกไอเดียเป็นคอนเทนต์พร้อมใช้ ไม่ใช่แค่ก็อปข้อความไปวาง</p>
+      <div class="section-eyebrow">ผลลัพธ์ที่ได้จริง จากการใช้งาน Gem จริง</div>
+      <h2>คลัง Gem พร้อมสร้างคอนเทนต์ให้ทันที</h2>
+      <p>แต่ละตัวคือ Gem เฉพาะทางที่ช่วยแตกไอเดียเป็นคอนเทนต์พร้อมใช้ ไม่ใช่แค่ก็อปข้อความไปวาง</p>
     </div>
     <div class="lib-filters" id="libFilters"></div>
     <div class="lib-grid" id="libGrid">
-      <div class="lib-loading">🐾 กำลังโหลดคลัง Prompt...</div>
+      <div class="lib-loading">🐾 กำลังโหลดคลัง Gem...</div>
     </div>
   </div>
 </section>
@@ -578,7 +578,7 @@ async function loadPrompts(){
     renderFilters();
     renderGrid();
   } catch(err){
-    document.getElementById('libGrid').innerHTML = '<div class="lib-loading">โหลดคลัง Prompt ไม่สำเร็จ ลองรีเฟรชหน้าใหม่ค่ะ 🐾</div>';
+    document.getElementById('libGrid').innerHTML = '<div class="lib-loading">โหลดคลัง Gem ไม่สำเร็จ ลองรีเฟรชหน้าใหม่ค่ะ 🐾</div>';
   }
 }
 function renderFilters(){
@@ -599,7 +599,7 @@ function renderGrid(){
   const grid = document.getElementById('libGrid');
   const list = activeCategory === 'all' ? allPrompts : allPrompts.filter(p => p.category === activeCategory);
   if(!list.length){
-    grid.innerHTML = '<div class="lib-loading">ยังไม่มี Prompt ในหมวดนี้</div>';
+    grid.innerHTML = '<div class="lib-loading">ยังไม่มี Gem ในหมวดนี้</div>';
     return;
   }
   grid.innerHTML = list.map(p=>{
