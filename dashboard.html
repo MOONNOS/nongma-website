@@ -57,8 +57,9 @@
   .lib-filters button{ font-family:'Sarabun'; font-weight:600; font-size:.85rem; padding:8px 18px; border-radius:999px; border:1px solid var(--line); background:var(--white); color:var(--brown-soft); cursor:pointer; }
   .lib-filters button.active{ background:var(--brown); color:var(--cream); border-color:var(--brown); }
   .lib-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:18px; }
-  .lib-card{ background:var(--white); border:1px solid var(--line); border-radius:20px; padding:20px; display:flex; flex-direction:column; gap:10px; }
-  .lib-card .lib-thumb{ width:100%; height:140px; object-fit:cover; border-radius:14px; margin-bottom:2px; }
+  .lib-card{ background:var(--white); border:1px solid var(--line); border-radius:20px; overflow:hidden; display:flex; flex-direction:column; }
+  .lib-card .lib-thumb{ width:100%; height:150px; object-fit:cover; display:block; }
+  .lib-card .lib-body{ padding:20px; display:flex; flex-direction:column; gap:10px; flex:1; }
   .lib-card .lib-cat{ font-size:.72rem; font-weight:700; color:var(--blue-dark); background:#EAF2FB; display:inline-block; padding:3px 10px; border-radius:999px; align-self:flex-start; }
   .lib-card h4{ font-family:'Kanit'; font-size:1.02rem; }
   .lib-card p{ font-size:.85rem; color:var(--brown-soft); flex:1; }
@@ -461,21 +462,25 @@ function renderGrid(){
       return `
         <div class="lib-card">
           ${p.image_url ? `<img class="lib-thumb" src="${p.image_url}" alt="${p.title}">` : ''}
-          <span class="lib-cat">${p.category}</span>
-          <h4>${p.title}</h4>
-          <p>${p.description || ''}</p>
-          ${btn}
+          <div class="lib-body">
+            <span class="lib-cat">${p.category}</span>
+            <h4>${p.title}</h4>
+            <p>${p.description || ''}</p>
+            ${btn}
+          </div>
         </div>`;
     }
     const label = LEVEL_LABEL[p.level_required] || `LV${p.level_required}`;
     return `
       <div class="lib-card locked">
         ${p.image_url ? `<img class="lib-thumb" src="${p.image_url}" alt="${p.title}">` : ''}
-        <span class="lib-cat">${p.category}</span>
-        <h4>${p.title}</h4>
-        <p>${p.description || ''}</p>
-        <div class="lock-badge"><span class="lock-icon">🔒</span> สำหรับสมาชิกระดับ ${label}</div>
-        <a class="lib-unlock-btn" href="index.html#pricing" style="display:block;text-align:center;">ดูแพ็กเกจ</a>
+        <div class="lib-body">
+          <span class="lib-cat">${p.category}</span>
+          <h4>${p.title}</h4>
+          <p>${p.description || ''}</p>
+          <div class="lock-badge"><span class="lock-icon">🔒</span> สำหรับสมาชิกระดับ ${label}</div>
+          <a class="lib-unlock-btn" href="index.html#pricing" style="display:block;text-align:center;">ดูแพ็กเกจ</a>
+        </div>
       </div>`;
   }).join('');
 }
