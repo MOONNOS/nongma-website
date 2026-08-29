@@ -234,6 +234,7 @@
     <form class="auth-form active" id="loginForm">
       <input type="email" name="email" placeholder="อีเมล" required>
       <input type="password" name="password" placeholder="รหัสผ่าน" required>
+      <a href="#" id="forgotPasswordLink" style="font-size:.78rem; color:var(--brown-soft); text-align:right; margin-top:-4px;">ลืมรหัสผ่าน?</a>
       <button type="submit" class="btn btn-primary">เข้าสู่ระบบ</button>
     </form>
     <form class="auth-form" id="signupForm">
@@ -242,6 +243,12 @@
       <input type="password" name="password" placeholder="ตั้งรหัสผ่าน (8 ตัวขึ้นไป)" required minlength="8">
       <input type="password" name="confirmPassword" placeholder="ยืนยันรหัสผ่านอีกครั้ง" required minlength="8">
       <button type="submit" class="btn btn-primary">สมัครสมาชิก</button>
+    </form>
+    <form class="auth-form" id="forgotForm">
+      <div class="modal-sub" style="margin-bottom:6px;">กรอกอีเมลที่ใช้สมัคร เราจะส่งลิงก์ตั้งรหัสผ่านใหม่ไปให้</div>
+      <input type="email" name="email" placeholder="อีเมลที่ใช้สมัคร" required>
+      <button type="submit" class="btn btn-primary">ส่งลิงก์รีเซ็ตรหัสผ่าน</button>
+      <a href="#" id="backToLoginLink" style="text-align:center; font-size:.82rem; color:var(--brown-soft); margin-top:4px;">← กลับไปเข้าสู่ระบบ</a>
     </form>
   </div>
 </div>
@@ -489,7 +496,16 @@ const authError = document.getElementById('authError');
 const loginForm = document.getElementById('loginForm');
 const signupForm = document.getElementById('signupForm');
 const userWidget = document.getElementById('userWidget');
-function openModal(){ authModal.classList.add('open'); hideError(); }
+function openModal(){
+  authModal.classList.add('open');
+  hideError();
+  // รีเซ็ตกลับไปหน้าเข้าสู่ระบบเสมอตอนเปิด modal ใหม่ (เผื่อรอบก่อนค้างอยู่หน้าลืมรหัสผ่าน)
+  document.querySelector('.modal-tabs').style.display = 'flex';
+  document.querySelectorAll('.modal-tabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.modal-tabs button[data-tab="login"]').classList.add('active');
+  document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
+  document.getElementById('loginForm').classList.add('active');
+}
 function closeModal(){ authModal.classList.remove('open'); }
 function showError(msg){ authError.textContent = msg; authError.classList.add('show'); }
 function hideError(){ authError.textContent = ''; authError.classList.remove('show'); }
@@ -530,6 +546,49 @@ loginForm.addEventListener('submit', async (e)=>{
     onAuthSuccess(data.token);
   } catch(err){ showError(err.message); }
 });
+// ===== ลืมรหัสผ่าน =====
+const forgotForm = document.getElementById('forgotForm');
+const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+const backToLoginLink = document.getElementById('backToLoginLink');
+const modalTabs = document.querySelector('.modal-tabs');
+
+forgotPasswordLink.addEventListener('click', (e)=>{
+  e.preventDefault();
+  hideError();
+  modalTabs.style.display = 'none';
+  document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
+  forgotForm.classList.add('active');
+});
+backToLoginLink.addEventListener('click', (e)=>{
+  e.preventDefault();
+  hideError();
+  modalTabs.style.display = 'flex';
+  document.querySelectorAll('.modal-tabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.modal-tabs button[data-tab="login"]').classList.add('active');
+  document.querySelectorAll('.auth-form').forEach(f=>f.classList.remove('active'));
+  loginForm.classList.add('active');
+});
+forgotForm.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  hideError();
+  const fd = new FormData(forgotForm);
+  const submitBtn = forgotForm.querySelector('button[type="submit"]');
+  const original = submitBtn.textContent;
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'กำลังส่ง...';
+  try {
+    const data = await apiPost('/api/auth/forgot-password', { email: fd.get('email') });
+    alert(data.message);
+    forgotForm.reset();
+    backToLoginLink.click();
+  } catch(err){
+    showError(err.message);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = original;
+  }
+});
+
 signupForm.addEventListener('submit', async (e)=>{
   e.preventDefault();
   hideError();
