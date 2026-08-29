@@ -298,7 +298,12 @@
           <form id="addGemForm">
             <input type="text" name="id" placeholder="ID (เช่น cinematic-alley)" required>
             <input type="text" name="title" placeholder="ชื่อ Prompt" required>
-            <input type="text" name="category" placeholder="หมวดหมู่ (เช่น หนัง/ดราม่า)" required>
+            <select name="category" required style="font-family:'Sarabun'; padding:11px 14px; border-radius:12px; border:1px solid var(--line); background:var(--cream); color:var(--brown);">
+              <option value="creative">creative</option>
+              <option value="image">image</option>
+              <option value="product">product</option>
+              <option value="video">video</option>
+            </select>
             <input type="text" name="description" placeholder="คำอธิบายสั้นๆ">
             <input type="text" name="gem_url" placeholder="ลิงก์ Gem (ถ้ามี)">
             <input type="text" name="image_url" placeholder="ลิงก์รูปภาพหน้าปก (ถ้ามี)">
@@ -716,18 +721,41 @@ async function loadAdminPackages(){
     el.innerHTML = `<div class="lib-loading">${err.message}</div>`;
   }
 }
+const GEM_CATEGORIES = ['creative', 'image', 'product', 'video'];
 async function loadAdminGems(){
   const el = document.getElementById('adminGemsList');
   el.innerHTML = '<div class="lib-loading">🐾 กำลังโหลด...</div>';
   try{
     const prompts = await apiGet('/api/admin-panel/prompts');
-    el.innerHTML = prompts.map(p=>`
+    el.innerHTML = prompts.map(p=>{
+      const isOldCategory = !GEM_CATEGORIES.includes(p.category);
+      const options = GEM_CATEGORIES.map(c=>`<option value="${c}" ${c===p.category?'selected':''}>${c}</option>`).join('')
+        + (isOldCategory ? `<option value="${p.category}" selected>${p.category} (หมวดเก่า)</option>` : '');
+      return `
       <div class="staff-row">
         <div class="sr-main">
-          <div class="sr-name">${p.title}</div>
-          <div class="sr-sub">${p.category} · LV${p.level_required} ขึ้นไป · ${p.gem_url ? '🔗 มีลิงก์ Gem แล้ว' : '⚠️ ยังไม่มีลิงก์ Gem'} · ${p.image_url ? '🖼️ มีรูปแล้ว' : '🖼️ ยังไม่มีรูป'}</div>
+          <div class="sr-name">${p.title} ${isOldCategory ? '⚠️' : ''}</div>
+          <div class="sr-sub">LV${p.level_required} ขึ้นไป · ${p.gem_url ? '🔗 มีลิงก์ Gem แล้ว' : '⚠️ ยังไม่มีลิงก์ Gem'} · ${p.image_url ? '🖼️ มีรูปแล้ว' : '🖼️ ยังไม่มีรูป'}</div>
         </div>
-      </div>`).join('');
+        <select data-gem="${p.id}">${options}</select>
+        <button class="sr-btn save" data-gem="${p.id}">บันทึกหมวด</button>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('.sr-btn.save').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        const gemId = btn.dataset.gem;
+        const select = el.querySelector(`select[data-gem="${gemId}"]`);
+        btn.disabled = true;
+        try{
+          const data = await apiPatch(`/api/admin-panel/prompts/${gemId}`, { category: select.value });
+          alert(data.message);
+          loadAdminGems();
+        } catch(err){
+          alert(err.message);
+          btn.disabled = false;
+        }
+      });
+    });
   } catch(err){
     el.innerHTML = `<div class="lib-loading">${err.message}</div>`;
   }
