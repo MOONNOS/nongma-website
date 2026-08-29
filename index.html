@@ -21,7 +21,7 @@
   ::selection{ background:var(--gold); color:var(--brown); }
   /* header */
   header{ position:sticky; top:0; z-index:50; background:rgba(255,249,240,.92); backdrop-filter:blur(6px); border-bottom:1px solid var(--line); }
-  .nav{ display:flex; align-items:center; justify-content:space-between; padding:14px 24px; max-width:1120px; margin:0 auto; }
+  .nav{ display:flex; align-items:center; justify-content:space-between; padding:14px 24px; max-width:1120px; margin:0 auto; position:relative; }
   .logo{ display:flex; align-items:center; gap:10px; font-family:'Kanit'; font-weight:700; font-size:1.1rem; }
   .logo-badge{ width:38px; height:38px; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 0 var(--gold-dark); }
   .logo-badge img{ width:100%; height:100%; object-fit:cover; }
@@ -185,6 +185,12 @@
   .auth-error.show{ display:block; }
   .modal-title{ font-family:'Kanit'; font-weight:700; font-size:1.2rem; margin-bottom:4px; text-align:center; }
   .modal-sub{ font-size:.84rem; color:var(--brown-soft); text-align:center; margin-bottom:20px; }
+  /* QR payment modal */
+  .qr-amount{ text-align:center; font-family:'Kanit'; font-weight:800; font-size:1.8rem; color:var(--coral); margin-bottom:14px; }
+  .qr-image-box{ background:var(--white); border:1px solid var(--line); border-radius:16px; padding:14px; margin-bottom:16px; }
+  .qr-image-box img{ display:block; width:100%; height:auto; border-radius:8px; }
+  .qr-note{ font-size:.82rem; color:var(--brown-soft); text-align:center; margin-bottom:18px; line-height:1.6; }
+  .qr-actions{ display:flex; flex-direction:column; gap:10px; }
 </style>
 </head>
 <body>
@@ -200,6 +206,7 @@
       <a href="#faq">FAQ</a>
     </nav>
     <button class="nav-cta" id="authTrigger">เข้าสู่ระบบ 🐾</button>
+    <a href="dashboard.html" class="nav-cta" id="dashboardLink" style="display:none; background:var(--coral); box-shadow:0 3px 0 #C6553B;">🏠 แดชบอร์ด</a>
     <div class="user-widget" id="userWidget">
       <div class="avatar" id="uwAvatar">🐶</div>
       <div>
@@ -236,6 +243,20 @@
       <input type="password" name="confirmPassword" placeholder="ยืนยันรหัสผ่านอีกครั้ง" required minlength="8">
       <button type="submit" class="btn btn-primary">สมัครสมาชิก</button>
     </form>
+  </div>
+</div>
+<div class="modal-backdrop" id="qrModal">
+  <div class="modal-box">
+    <button class="modal-close" id="qrModalClose">&times;</button>
+    <div class="modal-title">สแกนจ่ายด้วยพร้อมเพย์ 🐾</div>
+    <div class="modal-sub">สแกน QR ด้านล่างผ่านแอปธนาคารของคุณ</div>
+    <div class="qr-amount" id="qrAmount">฿0</div>
+    <div class="qr-image-box"><img id="qrImage" src="" alt="พร้อมเพย์ QR Code"></div>
+    <div class="qr-note">โอนเงินให้ครบตามยอดด้านบน แล้วกดปุ่ม "ฉันโอนเงินแล้ว" เพื่อแจ้งทีมงานตรวจสอบและปลดล็อกสิทธิ์ให้ค่ะ</div>
+    <div class="qr-actions">
+      <button class="btn btn-primary" id="confirmPaidBtn">✅ ฉันโอนเงินแล้ว</button>
+      <button class="btn btn-secondary" id="qrCancelBtn">ยกเลิก</button>
+    </div>
   </div>
 </div>
 <section class="hero">
@@ -324,9 +345,9 @@
 <section class="section alt-bg" id="helpers">
   <div class="wrap">
     <div class="section-head">
-     <div class="section-eyebrow">ทีมงานที่ทำงานแทนคุณ</div>
-      <h2>ไม่ต้องทำคนเดียว มีทีม AI ช่วยจนถึงขายได้จริง</h2>
-      <p>แต่ละตัวไม่ได้แค่ให้ไอเดีย แต่ช่วยทำจนถึงขั้นพร้อมใช้ขายจริง</p>
+      <div class="section-eyebrow">ทีมผู้ช่วย AI</div>
+      <h2>มีทีม AI ช่วยทำแทบทุกขั้นตอน</h2>
+      <p>เรียกใช้ได้ตลอดการทำคอนเทนต์ ไม่ต้องทำเองทุกอย่างคนเดียว</p>
     </div>
     <div class="helpers" id="helpersGrid">
       <div class="lib-loading">🐾 กำลังโหลดผู้ช่วย AI...</div>
@@ -541,10 +562,12 @@ async function loadProfile(){
 }
 function showLoggedOut(){
   authTrigger.style.display = 'inline-flex';
+  document.getElementById('dashboardLink').style.display = 'none';
   userWidget.style.display = 'none';
 }
 function showLoggedIn(me){
   authTrigger.style.display = 'none';
+  document.getElementById('dashboardLink').style.display = 'inline-flex';
   userWidget.style.display = 'flex';
   document.getElementById('uwName').textContent = me.name + ' ' + me.badge;
   document.getElementById('uwLevel').textContent = me.username;
@@ -695,34 +718,68 @@ async function loadCourses(){
   }
 }
 loadCourses();
-// ===== ปุ่มซื้อแพ็กเกจ =====
+// ===== ปุ่มซื้อแพ็กเกจ: เปิด QR พร้อมเพย์ก่อน แล้วค่อยส่งคำสั่งซื้อ =====
+const QR_MAP = {
+  PACKAGE_399:  { img: 'qr-399.png',  amount: '399'   },
+  PACKAGE_799:  { img: 'qr-799.png',  amount: '799'   },
+  PACKAGE_3900: { img: 'qr-3900.png', amount: '3,900' },
+  PACKAGE_8900: { img: 'qr-8900.png', amount: '8,900' },
+};
+const qrModal = document.getElementById('qrModal');
+const qrModalClose = document.getElementById('qrModalClose');
+const qrCancelBtn = document.getElementById('qrCancelBtn');
+const confirmPaidBtn = document.getElementById('confirmPaidBtn');
+let pendingPackageId = null;
+
+function openQrModal(packageId){
+  const info = QR_MAP[packageId];
+  if(!info){ alert('ไม่พบข้อมูลแพ็กเกจนี้'); return; }
+  pendingPackageId = packageId;
+  document.getElementById('qrImage').src = info.img;
+  document.getElementById('qrAmount').textContent = '฿' + info.amount;
+  qrModal.classList.add('open');
+}
+function closeQrModal(){
+  qrModal.classList.remove('open');
+  pendingPackageId = null;
+}
+qrModalClose.addEventListener('click', closeQrModal);
+qrCancelBtn.addEventListener('click', closeQrModal);
+qrModal.addEventListener('click', (e)=>{ if(e.target === qrModal) closeQrModal(); });
+
 document.querySelectorAll('.buy-btn').forEach(btn=>{
-  btn.addEventListener('click', async ()=>{
+  btn.addEventListener('click', ()=>{
     const packageId = btn.dataset.package;
     const currentToken = localStorage.getItem('nongma_token');
     if(!currentToken){
       openModal();
       return;
     }
-    const original = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = 'กำลังส่งคำสั่งซื้อ...';
-    try{
-      const res = await fetch(API_BASE + '/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + currentToken },
-        body: JSON.stringify({ package_id: packageId }),
-      });
-      const data = await res.json();
-      if(!res.ok) throw new Error(data.error || 'เกิดข้อผิดพลาด');
-      alert(data.message + '\n\nดูสถานะคำสั่งซื้อได้ที่แดชบอร์ด > การซื้อของฉัน');
-      window.location.href = 'dashboard.html';
-    } catch(err){
-      alert(err.message);
-      btn.disabled = false;
-      btn.textContent = original;
-    }
+    openQrModal(packageId);
   });
+});
+
+confirmPaidBtn.addEventListener('click', async ()=>{
+  if(!pendingPackageId) return;
+  const currentToken = localStorage.getItem('nongma_token');
+  const original = confirmPaidBtn.textContent;
+  confirmPaidBtn.disabled = true;
+  confirmPaidBtn.textContent = 'กำลังส่งคำสั่งซื้อ...';
+  try{
+    const res = await fetch(API_BASE + '/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + currentToken },
+      body: JSON.stringify({ package_id: pendingPackageId }),
+    });
+    const data = await res.json();
+    if(!res.ok) throw new Error(data.error || 'เกิดข้อผิดพลาด');
+    alert(data.message + '\n\nดูสถานะคำสั่งซื้อได้ที่แดชบอร์ด > การซื้อของฉัน');
+    window.location.href = 'dashboard.html';
+  } catch(err){
+    alert(err.message);
+    confirmPaidBtn.disabled = false;
+    confirmPaidBtn.textContent = original;
+  }
 });
 </script>
 </body>
