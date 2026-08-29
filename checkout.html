@@ -107,9 +107,12 @@
         <div class="summary-row">
           <div>
             <div class="sr-name" id="sumName">-</div>
-            <div class="summary-note">ซื้อครั้งเดียว จ่ายเต็มจำนวน</div>
+            <div class="summary-note" id="sumNote">ซื้อครั้งเดียว จ่ายเต็มจำนวน</div>
           </div>
-          <div class="sr-price" id="sumPrice">-</div>
+          <div>
+            <div class="sr-price" id="sumPrice">-</div>
+            <div id="sumFullPrice" style="display:none; font-size:.78rem; color:var(--brown-soft); text-decoration:line-through; text-align:right;"></div>
+          </div>
         </div>
       </div>
       <div class="card">
@@ -134,7 +137,7 @@
         <div class="step-panel active" id="stepPanel1">
           <div class="timer" id="timerText">แนะนำให้โอนภายใน <b id="timerClock">15:00</b></div>
           <div class="qr-box">
-            <img id="qrImage" src="" alt="พร้อมเพย์ QR Code">
+            <div id="qrCanvas" style="display:flex; justify-content:center;"></div>
             <div class="qr-amount" id="qrAmountText">฿0</div>
           </div>
           <a class="btn btn-secondary" id="downloadQrBtn" href="#" download style="display:block; text-align:center; text-decoration:none;">⬇️ บันทึกรูป QR</a>
@@ -167,6 +170,7 @@
   <p style="color:var(--brown-soft); margin:10px 0 20px;" id="blockedMsg"></p>
   <a class="btn btn-primary" href="index.html#pricing" style="display:inline-block; width:auto; padding:12px 28px;">กลับไปเลือกแพ็กเกจ</a>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const API_BASE = "https://nongma-backend.onrender.com";
 const token = localStorage.getItem('nongma_token');
@@ -179,11 +183,66 @@ const PACKAGES = {
   PACKAGE_3900: { name: 'หมาเก่งพิเศษ (LV4)', price: 3900, level: 4, qr: 'qr-3900.png', desc: 'ทุกอย่างในระดับหมาโตเต็มตัว บวกเรียนสดตัวต่อตัว 6 ชม. ผ่าน Google Meet เลือกวัน-เวลาและหัวข้อเรียนได้เอง' },
   PACKAGE_8900: { name: 'หัวหน้าฝูง (LV5)',   price: 8900, level: 5, qr: 'qr-8900.png', desc: 'ทุกอย่างในระดับหมาเก่งพิเศษ บวกเรียนสดตัวต่อตัว 1 วันเต็ม สอนวางระบบ/Automation ธุรกิจจริง พร้อม Template ทีมน้องหมา' },
 };
+const LEVEL_PRICE = { 1: 0, 2: 399, 3: 799, 4: 3900, 5: 8900 };
+const PROMPTPAY_PHONE = '0966744098';
+
 const params = new URLSearchParams(window.location.search);
 let currentPackageId = params.get('package');
 let currentUser = null;
 let slipDataUrl = null;
 let timerInterval = null;
+let qrObj = null;
+
+// ===== สร้าง PromptPay QR ยอดเงินตามส่วนต่างจริง (มาตรฐาน EMVCo) =====
+function crc16ccitt(str){
+  let crc = 0xFFFF;
+  for(let i = 0; i < str.length; i++){
+    crc ^= (str.charCodeAt(i) << 8);
+    for(let j = 0; j < 8; j++){
+      crc = (crc & 0x8000) ? ((crc << 1) ^ 0x1021) & 0xFFFF : (crc << 1) & 0xFFFF;
+    }
+  }
+  return crc.toString(16).toUpperCase().padStart(4, '0');
+}
+function tlv(tag, value){
+  return tag + String(value.length).padStart(2, '0') + value;
+}
+function buildPromptPayPayload(phone, amount){
+  let digits = phone.replace(/[-\s]/g, '');
+  if(digits.startsWith('0')) digits = digits.slice(1);
+  const target = '0066' + digits;
+  const merchantInfo = tlv('00', 'A000000677010111') + tlv('01', target);
+  const tag29 = tlv('29', merchantInfo);
+  const poiMethod = amount ? '12' : '11';
+  let payload = tlv('00', '01') + tlv('01', poiMethod) + tag29 + tlv('53', '764');
+  if(amount != null){
+    payload += tlv('54', amount.toFixed(2));
+  }
+  payload += tlv('58', 'TH');
+  payload += '6304';
+  payload += crc16ccitt(payload);
+  return payload;
+}
+function renderQr(amount){
+  const payload = buildPromptPayPayload(PROMPTPAY_PHONE, amount);
+  const el = document.getElementById('qrCanvas');
+  el.innerHTML = '';
+  qrObj = new QRCode(el, { text: payload, width: 240, height: 240, correctLevel: QRCode.CorrectLevel.M });
+  setTimeout(updateDownloadLink, 50);
+}
+function updateDownloadLink(){
+  const canvas = document.querySelector('#qrCanvas canvas');
+  const dlBtn = document.getElementById('downloadQrBtn');
+  if(canvas){
+    dlBtn.href = canvas.toDataURL('image/png');
+    dlBtn.setAttribute('download', `nongma-promptpay-${currentPackageId}.png`);
+  }
+}
+function computeAmountDue(pkg){
+  const basePrice = LEVEL_PRICE[(currentUser && currentUser.level) || 1] ?? 0;
+  const due = pkg.price - basePrice;
+  return due > 0 ? due : pkg.price;
+}
 
 async function apiGet(path){
   const res = await fetch(API_BASE + path, { headers: { 'Authorization': 'Bearer ' + token } });
@@ -200,13 +259,15 @@ function renderPlanList(){
     const p = PACKAGES[id];
     const owned = currentUser && currentUser.level >= p.level;
     const selected = id === currentPackageId;
+    const due = computeAmountDue(p);
+    const discounted = due < p.price;
     return `
       <div class="plan-item ${selected ? 'selected' : ''} ${owned ? 'disabled' : ''}" data-plan="${id}">
         <div>
           <div class="pi-name">${p.name}</div>
-          ${owned ? '<div class="pi-tag">คุณมีระดับนี้อยู่แล้ว</div>' : ''}
+          ${owned ? '<div class="pi-tag">คุณมีระดับนี้อยู่แล้ว</div>' : (discounted ? `<div class="pi-tag">ราคาส่วนต่าง จากเดิม ${fmtPrice(p.price)}</div>` : '')}
         </div>
-        <div class="pi-price">${fmtPrice(p.price)}</div>
+        <div class="pi-price">${fmtPrice(due)}</div>
       </div>`;
   }).join('');
   el.querySelectorAll('.plan-item:not(.disabled)').forEach(item=>{
@@ -264,11 +325,21 @@ function render(){
   document.getElementById('planDetailName').textContent = pkg.name;
   document.getElementById('planDetailDesc').textContent = pkg.desc;
   document.getElementById('sumName').textContent = pkg.name;
-  document.getElementById('sumPrice').textContent = fmtPrice(pkg.price);
-  document.getElementById('qrImage').src = pkg.qr;
-  document.getElementById('qrAmountText').textContent = fmtPrice(pkg.price);
-  document.getElementById('downloadQrBtn').href = pkg.qr;
-  document.getElementById('downloadQrBtn').setAttribute('download', pkg.qr);
+
+  const amountDue = computeAmountDue(pkg);
+  const sumFullPriceEl = document.getElementById('sumFullPrice');
+  const sumNoteEl = document.getElementById('sumNote');
+  document.getElementById('sumPrice').textContent = fmtPrice(amountDue);
+  if(amountDue < pkg.price){
+    sumFullPriceEl.style.display = 'block';
+    sumFullPriceEl.textContent = fmtPrice(pkg.price);
+    sumNoteEl.textContent = `อัปเกรดจากระดับปัจจุบัน จ่ายเฉพาะส่วนต่าง`;
+  } else {
+    sumFullPriceEl.style.display = 'none';
+    sumNoteEl.textContent = 'ซื้อครั้งเดียว จ่ายเต็มจำนวน';
+  }
+  document.getElementById('qrAmountText').textContent = fmtPrice(amountDue);
+  renderQr(amountDue);
 
   // รีเซ็ตกลับไปขั้นตอนที่ 1 เสมอเมื่อเปลี่ยนแพ็กเกจ
   goToStep(1);
