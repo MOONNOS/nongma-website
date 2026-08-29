@@ -571,6 +571,22 @@ document.querySelectorAll('.staff-tab').forEach(tab=>{
     if(view === 'users') loadStaffUsers();
   });
 });
+function openSlipImage(dataUrl){
+  try{
+    const arr = dataUrl.split(',');
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while(n--){ u8arr[n] = bstr.charCodeAt(n); }
+    const blob = new Blob([u8arr], { type: mime });
+    const url = URL.createObjectURL(blob);
+    window.open(url, '_blank');
+  } catch(err){
+    alert('เปิดรูปสลิปไม่สำเร็จ');
+  }
+}
 async function loadStaffOrders(){
   const el = document.getElementById('staffOrdersList');
   el.innerHTML = '<div class="lib-loading">🐾 กำลังโหลด...</div>';
@@ -584,10 +600,11 @@ async function loadStaffOrders(){
       const date = new Date(o.created_at).toLocaleDateString('th-TH', { year:'numeric', month:'short', day:'numeric' });
       const actions = o.status === 'pending'
         ? `<div class="sr-actions">
+             ${o.slip_image ? `<button class="sr-btn save" data-slip="${o.id}">📎 ดูสลิป</button>` : '<span class="sr-sub">⚠️ ไม่มีสลิป</span>'}
              <button class="sr-btn approve" data-order="${o.id}" data-act="approve">อนุมัติ</button>
              <button class="sr-btn reject" data-order="${o.id}" data-act="reject">ปฏิเสธ</button>
            </div>`
-        : `<span class="status-pill ${o.status}">${STATUS_LABEL[o.status] || o.status}</span>`;
+        : `${o.slip_image ? `<button class="sr-btn save" data-slip="${o.id}">📎 ดูสลิป</button>` : ''}<span class="status-pill ${o.status}">${STATUS_LABEL[o.status] || o.status}</span>`;
       return `
         <div class="staff-row">
           <div class="sr-main">
@@ -597,7 +614,13 @@ async function loadStaffOrders(){
           ${actions}
         </div>`;
     }).join('');
-    el.querySelectorAll('.sr-btn').forEach(btn=>{
+    el.querySelectorAll('[data-slip]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const order = orders.find(o => String(o.id) === String(btn.dataset.slip));
+        if(order && order.slip_image) openSlipImage(order.slip_image);
+      });
+    });
+    el.querySelectorAll('.sr-btn.approve, .sr-btn.reject').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const orderId = btn.dataset.order;
         const act = btn.dataset.act;
