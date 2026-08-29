@@ -621,10 +621,12 @@ async function loadProfile(){
     showLoggedOut();
   }
 }
+let currentUserLevel = null;
 function showLoggedOut(){
   authTrigger.style.display = 'inline-flex';
   document.getElementById('dashboardLink').style.display = 'none';
   userWidget.style.display = 'none';
+  currentUserLevel = null;
 }
 function showLoggedIn(me){
   authTrigger.style.display = 'none';
@@ -633,6 +635,7 @@ function showLoggedIn(me){
   document.getElementById('uwName').textContent = me.name + ' ' + me.badge;
   document.getElementById('uwLevel').textContent = me.username;
   document.getElementById('umStatus').textContent = `LV${me.level} · ${me.name}`;
+  currentUserLevel = me.level;
 }
 userWidget.addEventListener('click', (e)=>{
   if(e.target.id === 'logoutBtn') return;
@@ -787,10 +790,10 @@ async function loadCourses(){
 loadCourses();
 // ===== ปุ่มซื้อแพ็กเกจ: เปิด QR พร้อมเพย์ก่อน แล้วค่อยส่งคำสั่งซื้อ =====
 const QR_MAP = {
-  PACKAGE_399:  { img: 'qr-399.png',  amount: '399'   },
-  PACKAGE_799:  { img: 'qr-799.png',  amount: '799'   },
-  PACKAGE_3900: { img: 'qr-3900.png', amount: '3,900' },
-  PACKAGE_8900: { img: 'qr-8900.png', amount: '8,900' },
+  PACKAGE_399:  { img: 'qr-399.png',  amount: '399',   level: 2 },
+  PACKAGE_799:  { img: 'qr-799.png',  amount: '799',   level: 3 },
+  PACKAGE_3900: { img: 'qr-3900.png', amount: '3,900', level: 4 },
+  PACKAGE_8900: { img: 'qr-8900.png', amount: '8,900', level: 5 },
 };
 const qrModal = document.getElementById('qrModal');
 const qrModalClose = document.getElementById('qrModalClose');
@@ -820,6 +823,11 @@ document.querySelectorAll('.buy-btn').forEach(btn=>{
     const currentToken = localStorage.getItem('nongma_token');
     if(!currentToken){
       openModal();
+      return;
+    }
+    const info = QR_MAP[packageId];
+    if(info && currentUserLevel !== null && currentUserLevel >= info.level){
+      alert('คุณมีระดับสมาชิกนี้อยู่แล้ว หรือสูงกว่าแพ็กเกจนี้แล้วค่ะ 🐾 ไม่ต้องซื้อซ้ำ หรือถ้าอยากอัปเกรดต้องเลือกแพ็กเกจที่สูงกว่าระดับปัจจุบันนะคะ');
       return;
     }
     openQrModal(packageId);
