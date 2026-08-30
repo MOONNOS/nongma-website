@@ -307,7 +307,8 @@ a{ color:inherit; text-decoration:none; }
 </select>
 <input type="text" name="description" placeholder="คำอธิบายสั้นๆ">
 <input type="text" name="gem_url" placeholder="ลิงก์ Gem (ถ้ามี)">
-<input type="text" name="image_url" placeholder="ลิงก์รูปภาพหน้าปก (ถ้ามี)">
+<label style="font-size:.82rem; color:var(--brown-soft);">รูปภาพหน้าปก (ถ้ามี — ระบบจะย่อขนาดให้อัตโนมัติ)</label>
+<input type="file" name="image_file" accept="image/*">
 <select name="level_required" style="font-family:'Sarabun'; padding:11px 14px; border-radius:12px; border:1px solid var(--line); background:var(--cream); color:var(--brown);">
 <option value="1">LV1 (ฟรี ทุกคนใช้ได้)</option>
 <option value="2" selected>LV2 ขึ้นไป</option>
@@ -836,18 +837,55 @@ btn.disabled = false;
 el.innerHTML = `<div class="lib-loading">${err.message}</div>`;
 }
 }
+// ย่อขนาดรูปภาพฝั่ง browser ก่อนส่งขึ้นเซิร์ฟเวอร์ (จำกัดด้านยาวสุด 800px, คุณภาพ .75) กันรูปใหญ่เกินไป
+function compressImageFile(file, maxDim = 800, quality = 0.75){
+return new Promise((resolve, reject)=>{
+const reader = new FileReader();
+reader.onerror = () => reject(new Error('อ่านไฟล์รูปไม่สำเร็จ'));
+reader.onload = () => {
+const img = new Image();
+img.onerror = () => reject(new Error('โหลดรูปไม่สำเร็จ'));
+img.onload = () => {
+let { width, height } = img;
+if(width > height && width > maxDim){
+height = Math.round(height * (maxDim / width));
+width = maxDim;
+} else if(height > maxDim){
+width = Math.round(width * (maxDim / height));
+height = maxDim;
+}
+const canvas = document.createElement('canvas');
+canvas.width = width;
+canvas.height = height;
+canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+resolve(canvas.toDataURL('image/jpeg', quality));
+};
+img.src = reader.result;
+};
+reader.readAsDataURL(file);
+});
+}
 document.getElementById('addGemForm').addEventListener('submit', async (e)=>{
 e.preventDefault();
 const msgEl = document.getElementById('addGemMsg');
 const fd = new FormData(e.target);
+const submitBtn = e.target.querySelector('button[type="submit"]');
 try{
+let imageDataUrl = '';
+const imageFile = fd.get('image_file');
+if(imageFile && imageFile.size > 0){
+submitBtn.disabled = true;
+submitBtn.textContent = 'กำลังย่อรูป...';
+imageDataUrl = await compressImageFile(imageFile);
+submitBtn.textContent = 'เพิ่ม Gem';
+}
 const data = await apiPost('/api/admin-panel/prompts', {
 id: fd.get('id'),
 title: fd.get('title'),
 category: fd.get('category'),
 description: fd.get('description'),
 gem_url: fd.get('gem_url'),
-image_url: fd.get('image_url'),
+image_url: imageDataUrl,
 level_required: parseInt(fd.get('level_required'), 10),
 });
 showMsg(msgEl, data.message, true);
@@ -855,6 +893,9 @@ e.target.reset();
 loadAdminGems();
 } catch(err){
 showMsg(msgEl, err.message, false);
+} finally {
+submitBtn.disabled = false;
+submitBtn.textContent = 'เพิ่ม Gem';
 }
 });
 async function apiPost(path, body){
