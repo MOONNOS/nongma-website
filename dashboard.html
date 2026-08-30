@@ -802,22 +802,27 @@ const el = document.getElementById('adminAssistantsList');
 el.innerHTML = '<div class="lib-loading">🐾 กำลังโหลด...</div>';
 try{
 const assistants = await apiGet('/api/admin-panel/assistants');
-el.innerHTML = assistants.map(a=>`
+el.innerHTML = assistants.map(a=>{
+const levelOptions = [1,2,3,4,5].map(l=>`<option value="${l}" ${l===a.level_required?'selected':''}>LV${l}</option>`).join('');
+return `
 <div class="staff-row">
 <div class="sr-main">
 <div class="sr-name">${a.icon} ${a.name} — ${a.role}</div>
 <div class="sr-sub">LV${a.level_required} ขึ้นไป · ${a.tool_url ? '🔗 มีลิงก์แล้ว' : '⚠️ ยังไม่มีลิงก์'}</div>
 </div>
+<select data-level="${a.id}">${levelOptions}</select>
 <input type="text" value="${a.tool_url || ''}" placeholder="ลิงก์ Gem/เครื่องมือ" data-assistant="${a.id}" style="flex:1; min-width:220px;">
 <button class="sr-btn save" data-assistant="${a.id}">บันทึก</button>
-</div>`).join('');
+</div>`;
+}).join('');
 el.querySelectorAll('.sr-btn.save').forEach(btn=>{
 btn.addEventListener('click', async ()=>{
 const id = btn.dataset.assistant;
 const input = el.querySelector(`input[data-assistant="${id}"]`);
+const select = el.querySelector(`select[data-level="${id}"]`);
 btn.disabled = true;
 try{
-const data = await apiPatch(`/api/admin-panel/assistants/${id}`, { tool_url: input.value });
+const data = await apiPatch(`/api/admin-panel/assistants/${id}`, { tool_url: input.value, level_required: parseInt(select.value, 10) });
 alert(data.message);
 loadAdminAssistants();
 } catch(err){
