@@ -803,7 +803,8 @@ el.innerHTML = '<div class="lib-loading">🐾 กำลังโหลด...</di
 try{
 const assistants = await apiGet('/api/admin-panel/assistants');
 el.innerHTML = assistants.map(a=>{
-const levelOptions = [1,2,3,4,5].map(l=>`<option value="${l}" ${l===a.level_required?'selected':''}>LV${l}</option>`).join('');
+const ASSISTANT_LEVEL_LABEL = { 1: 'LV1 (ฟรี ทุกคนใช้ได้)', 2: 'LV2 ขึ้นไป', 3: 'LV3 ขึ้นไป', 4: 'LV4 ขึ้นไป', 5: 'LV5 ขึ้นไป' };
+const levelOptions = [1,2,3,4,5].map(l=>`<option value="${l}" ${l===a.level_required?'selected':''}>${ASSISTANT_LEVEL_LABEL[l]}</option>`).join('');
 return `
 <div class="staff-row">
 <div class="sr-main">
