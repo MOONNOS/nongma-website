@@ -797,6 +797,7 @@ el.innerHTML = `<div class="lib-loading">${err.message}</div>`;
 }
 }
 const GEM_CATEGORIES = ['creative', 'image', 'product', 'video'];
+const GEM_LEVEL_LABEL = { 1: 'LV1 (ฟรี ทุกคนใช้ได้)', 2: 'LV2 ขึ้นไป', 3: 'LV3 ขึ้นไป', 4: 'LV4 ขึ้นไป', 5: 'LV5 ขึ้นไป' };
 async function loadAdminGems(){
 const el = document.getElementById('adminGemsList');
 el.innerHTML = '<div class="lib-loading">🐾 กำลังโหลด...</div>';
@@ -806,6 +807,7 @@ el.innerHTML = prompts.map(p=>{
 const isOldCategory = !GEM_CATEGORIES.includes(p.category);
 const options = GEM_CATEGORIES.map(c=>`<option value="${c}" ${c===p.category?'selected':''}>${c}</option>`).join('')
 + (isOldCategory ? `<option value="${p.category}" selected>${p.category} (หมวดเก่า)</option>` : '');
+const levelOptions = [1,2,3,4,5].map(l=>`<option value="${l}" ${l===p.level_required?'selected':''}>${GEM_LEVEL_LABEL[l]}</option>`).join('');
 return `
 <div class="staff-row">
 <div class="sr-main">
@@ -813,7 +815,8 @@ return `
 <div class="sr-sub">LV${p.level_required} ขึ้นไป · ${p.gem_url ? '🔗 มีลิงก์ Gem แล้ว' : '⚠️ ยังไม่มีลิงก์ Gem'} · ${p.image_url ? '🖼️ มีรูปแล้ว' : '🖼️ ยังไม่มีรูป'}</div>
 </div>
 <select data-gem="${p.id}">${options}</select>
-<button class="sr-btn save" data-gem="${p.id}">บันทึกหมวด</button>
+<select data-level="${p.id}">${levelOptions}</select>
+<button class="sr-btn save" data-gem="${p.id}">บันทึก</button>
 <button class="sr-btn reject" data-delete-gem="${p.id}">🗑️ ลบ</button>
 </div>`;
 }).join('');
@@ -821,9 +824,10 @@ el.querySelectorAll('.sr-btn.save').forEach(btn=>{
 btn.addEventListener('click', async ()=>{
 const gemId = btn.dataset.gem;
 const select = el.querySelector(`select[data-gem="${gemId}"]`);
+const levelSelect = el.querySelector(`select[data-level="${gemId}"]`);
 btn.disabled = true;
 try{
-const data = await apiPatch(`/api/admin-panel/prompts/${gemId}`, { category: select.value });
+const data = await apiPatch(`/api/admin-panel/prompts/${gemId}`, { category: select.value, level_required: parseInt(levelSelect.value, 10) });
 alert(data.message);
 loadAdminGems();
 } catch(err){
