@@ -374,6 +374,13 @@ const data = await res.json().catch(()=>({}));
 if(!res.ok) throw new Error(data.error || 'เกิดข้อผิดพลาด');
 return data;
 }
+async function apiDelete(path){
+const headers = { 'Authorization': 'Bearer ' + token };
+const res = await fetch(API_BASE + path, { method: 'DELETE', headers });
+const data = await res.json().catch(()=>({}));
+if(!res.ok) throw new Error(data.error || 'เกิดข้อผิดพลาด');
+return data;
+}
 // ===== Sidebar navigation =====
 const sidebarEl = document.getElementById('sidebarEl');
 const sidebarBackdrop = document.getElementById('sidebarBackdrop');
@@ -807,6 +814,7 @@ return `
 </div>
 <select data-gem="${p.id}">${options}</select>
 <button class="sr-btn save" data-gem="${p.id}">บันทึกหมวด</button>
+<button class="sr-btn reject" data-delete-gem="${p.id}">🗑️ ลบ</button>
 </div>`;
 }).join('');
 el.querySelectorAll('.sr-btn.save').forEach(btn=>{
@@ -816,6 +824,23 @@ const select = el.querySelector(`select[data-gem="${gemId}"]`);
 btn.disabled = true;
 try{
 const data = await apiPatch(`/api/admin-panel/prompts/${gemId}`, { category: select.value });
+alert(data.message);
+loadAdminGems();
+} catch(err){
+alert(err.message);
+btn.disabled = false;
+}
+});
+});
+el.querySelectorAll('[data-delete-gem]').forEach(btn=>{
+btn.addEventListener('click', async ()=>{
+const gemId = btn.dataset.deleteGem;
+const row = btn.closest('.staff-row');
+const title = row ? row.querySelector('.sr-name').textContent.trim() : gemId;
+if(!confirm(`ต้องการลบ Gem "${title}" ใช่ไหมคะ? การลบไม่สามารถกู้คืนได้`)) return;
+btn.disabled = true;
+try{
+const data = await apiDelete(`/api/admin-panel/prompts/${gemId}`);
 alert(data.message);
 loadAdminGems();
 } catch(err){
