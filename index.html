@@ -41,7 +41,7 @@ header{ position:sticky; top:0; z-index:50; background:rgba(251,250,248,.75); ba
 header.scrolled{ border-bottom-color:var(--line); background:rgba(251,250,248,.9); }
 .nav{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:13px 24px; max-width:var(--max); margin:0 auto; }
 .logo{ display:flex; align-items:center; gap:10px; font-family:'Kanit'; font-weight:700; font-size:1rem; letter-spacing:-.02em; }
-.logo-badge{ width:34px; height:34px; border-radius:10px; overflow:hidden; flex-shrink:0; box-shadow:var(--sh-sm); border:1px solid var(--line); }
+.logo-badge{ width:34px; height:34px; border-radius:50%; overflow:hidden; flex-shrink:0; box-shadow:var(--sh-sm); border:1px solid var(--line); }
 .logo-badge img{ width:100%; height:100%; object-fit:cover; }
 .nav-links{ display:flex; gap:2px; }
 .nav-links a{ color:var(--ink-2); font-size:.9rem; font-weight:500; padding:7px 12px; border-radius:var(--r-sm); transition:color .15s, background .15s; }
@@ -78,7 +78,7 @@ header.scrolled{ border-bottom-color:var(--line); background:rgba(251,250,248,.9
 .hero{ position:relative; padding:clamp(56px,9vw,104px) 24px clamp(52px,7vw,84px); text-align:center; overflow:hidden; }
 .hero::before{ content:''; position:absolute; top:-180px; left:50%; transform:translateX(-50%); width:1000px; height:700px; background:radial-gradient(50% 50% at 50% 50%, rgba(228,87,46,.13), rgba(228,87,46,0) 72%); pointer-events:none; }
 .hero > *{ position:relative; }
-.mascot{ width:clamp(92px,14vw,124px); aspect-ratio:1; margin:0 auto 26px; border-radius:26px; overflow:hidden; background:var(--surface); border:1px solid var(--line); box-shadow:var(--sh-lg); animation:float 7s ease-in-out infinite; }
+.mascot{ width:clamp(92px,14vw,124px); aspect-ratio:1; margin:0 auto 26px; border-radius:50%; overflow:hidden; background:var(--surface); border:1px solid var(--line); box-shadow:var(--sh-lg); animation:float 7s ease-in-out infinite; }
 .mascot img{ width:100%; height:100%; object-fit:cover; }
 @keyframes float{ 0%,100%{transform:translateY(0);} 50%{transform:translateY(-6px);} }
 .eyebrow{ display:inline-flex; align-items:center; gap:9px; background:var(--surface); border:1px solid var(--line); padding:6px 15px 6px 11px; border-radius:999px; font-size:.79rem; font-weight:600; color:var(--ink-2); box-shadow:var(--sh-sm); }
@@ -540,7 +540,7 @@ footer .logo{ justify-content:center; margin-bottom:12px; color:var(--ink); }
 </section>
 
 <footer>
-<div class="logo"><span class="logo-badge" style="width:28px;height:28px;border-radius:8px;"><img src="nongma-mascot.png" alt="น้องหมา"></span> น้องหมาสอนทำคลิป</div>
+<div class="logo"><span class="logo-badge" style="width:28px;height:28px;border-radius:50%;"><img src="nongma-mascot.png" alt="น้องหมา"></span> น้องหมาสอนทำคลิป</div>
 <p>เรียน AI สร้างคอนเทนต์ เอาไปขายได้จริง โดยทีมผู้ช่วยน้องหมา</p>
 </footer>
 <script>
