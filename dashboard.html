@@ -804,7 +804,16 @@ const el = document.getElementById('adminGemsList');
 el.innerHTML = '<div class="lib-loading">🐾 กำลังโหลด...</div>';
 try{
 const prompts = await apiGet('/api/admin-panel/prompts');
-el.innerHTML = prompts.map(p=>{
+// เรียงใหม่: Gem หมวดเก่า (ภาษาไทย) ขึ้นบนสุดเสมอ กันตกไปกองท้ายรายการจนมองไม่เห็น
+const sorted = [...prompts].sort((a, b)=>{
+const aOld = GEM_CATEGORIES.includes(a.category) ? 1 : 0;
+const bOld = GEM_CATEGORIES.includes(b.category) ? 1 : 0;
+if(aOld !== bOld) return aOld - bOld;
+return String(a.title || '').localeCompare(String(b.title || ''), 'th');
+});
+const oldCount = sorted.filter(p=>!GEM_CATEGORIES.includes(p.category)).length;
+const summary = `<div style="font-size:.84rem; color:var(--brown-soft); margin-bottom:12px;">📦 ทั้งหมด <b>${sorted.length}</b> รายการ${oldCount ? ` · ⚠️ <b>${oldCount}</b> รายการยังเป็นหมวดเก่า (แสดงไว้บนสุดแล้ว)` : ' · หมวดหมู่ครบถ้วนแล้ว ✅'}</div>`;
+el.innerHTML = summary + sorted.map(p=>{
 const isOldCategory = !GEM_CATEGORIES.includes(p.category);
 const options = GEM_CATEGORIES.map(c=>`<option value="${c}" ${c===p.category?'selected':''}>${c}</option>`).join('')
 + (isOldCategory ? `<option value="${p.category}" selected>${p.category} (หมวดเก่า)</option>` : '');
