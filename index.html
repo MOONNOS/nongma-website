@@ -386,9 +386,9 @@ footer .logo{ justify-content:center; margin-bottom:10px; }
 <section class="section alt-bg" id="helpers">
 <div class="wrap">
 <div class="section-head">
-<div class="section-eyebrow">ทีมผู้ช่วย AI</div>
+<div class="section-eyebrow">ทีมผู้ช่วย AI · แพ็กเกจ ฿799</div>
 <h2>มีทีม AI ช่วยทำแทบทุกขั้นตอน</h2>
-<p>เรียกใช้ได้ตลอดการทำคอนเทนต์ ไม่ต้องทำเองทุกอย่างคนเดียว</p>
+<p>เรียกใช้ได้ตลอดการทำคอนเทนต์ ไม่ต้องทำเองทุกอย่างคนเดียว — ปลดล็อกทั้ง 6 ตัวที่แพ็กเกจ "หมาโตเต็มตัว" (฿799)</p>
 </div>
 <div class="helpers" id="helpersGrid">
 <div class="lib-loading">🐾 กำลังโหลดผู้ช่วย AI...</div>
@@ -423,8 +423,8 @@ footer .logo{ justify-content:center; margin-bottom:10px; }
 <div class="price-sub">ตลอดชีพ · หมาลุยงาน (LV2)</div>
 <ul class="price-features">
 <li>เข้าเรียนคอร์สพื้นฐานครบ 4 โมดูล</li>
-<li>ใช้งานผู้ช่วย AI ทั้ง 6 ตัวได้ไม่จำกัด</li>
-<li>ปลดล็อกคลัง Prompt ระดับพื้นฐาน</li>
+<li><b>ปลดล็อกคลัง Gem ทั้งหมด</b> ใช้ได้ไม่จำกัด</li>
+<li>ใช้ Gem สร้างภาพ วิดีโอ แคปชั่น ครบทุกหมวด</li>
 <li>เรียนผ่านมือถือหรือคอมได้</li>
 <li>เรียนซ้ำได้ไม่จำกัดตลอดชีพ</li>
 </ul>
@@ -438,9 +438,9 @@ footer .logo{ justify-content:center; margin-bottom:10px; }
 <div class="price-sub">ตลอดชีพ · หมาโตเต็มตัว (LV3)</div>
 <ul class="price-features">
 <li>ทุกอย่างในระดับ "หมาลุยงาน" +</li>
-<li>ปลดล็อกคลัง Prompt ระดับสูงทั้งหมด (รวม GEM ระบบแม่)</li>
+<li><b>ปลดล็อกผู้ช่วย AI ทั้ง 6 ตัว</b> ใช้ได้ไม่จำกัด</li>
 <li>เทคนิคขั้นสูง: ละคร ซีรีส์ การ์ตูนหลาย EP</li>
-<li>อัปเดตคอร์ส/Prompt ใหม่ในอนาคตฟรี</li>
+<li>อัปเดตคอร์ส/Gem/ผู้ช่วยใหม่ในอนาคตฟรี</li>
 </ul>
 <button class="btn btn-primary buy-btn" data-package="PACKAGE_799">โตเต็มตัวเลย 🐾</button>
 </div>
@@ -477,7 +477,7 @@ footer .logo{ justify-content:center; margin-bottom:10px; }
 </div>
 <div class="pricing-note">
 💡 <b>อัปเกรดได้ทุกเมื่อ</b> — จ่ายเฉพาะส่วนต่างของแพ็กเกจที่อัปเกรด ไม่ต้องซื้อใหม่ทั้งหมด<br>
-🐾 <b>ลองก่อนได้ฟรี</b> — สมัครสมาชิกทดลองใช้ Gem บางตัว + ดูตัวอย่างคอร์สได้ก่อนตัดสินใจซื้อ
+🐾 <b>สมัครฟรีดูก่อนได้</b> — สมัครสมาชิกเพื่อดูรายการ Gem และผู้ช่วย AI ทั้งหมด พร้อมตัวอย่างคอร์ส ก่อนตัดสินใจซื้อ
 </div>
 </div>
 </section>
@@ -709,7 +709,7 @@ loadProfile();
 // ===== คลัง Prompt: โหลด, กรองหมวดหมู่, ล็อก/ปลดล็อกตาม LV =====
 let allPrompts = [];
 let activeCategory = 'all';
-const LEVEL_LABEL = { 2: 'แพ็กเกจพื้นฐาน', 3: 'แพ็กเกจขั้นสูง', 4: 'Sub-admin', 5: 'Admin' };
+const LEVEL_LABEL = { 2: 'หมาลุยงาน ฿399', 3: 'หมาโตเต็มตัว ฿799', 4: 'หมาเก่งพิเศษ ฿3,900', 5: 'หัวหน้าฝูง ฿8,900' };
 async function loadPrompts(){
 const token = localStorage.getItem('nongma_token');
 try {
@@ -767,7 +767,7 @@ ${p.image_url ? `<img class="lib-thumb" src="${p.image_url}" alt="${p.title}">` 
 <span class="lib-cat">${p.category}</span>
 <h4>${p.title}</h4>
 <p>${p.description || ''}</p>
-<div class="lock-badge"><span class="lock-icon">🔒</span> สำหรับสมาชิกระดับ ${label}</div>
+<div class="lock-badge"><span class="lock-icon">🔒</span> ปลดล็อกที่แพ็กเกจ ${label}</div>
 <button class="lib-unlock-btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">ดูแพ็กเกจ</button>
 </div>
 </div>`;
@@ -794,13 +794,14 @@ return `
 <p>${a.description || ''}</p>
 </div>`;
 }
+const lockLabel = LEVEL_LABEL[a.level_required] || `LV${a.level_required}`;
 return `
 <div class="helper-card locked">
 <div class="helper-avatar">${a.icon}</div>
 <h4>${a.name}</h4>
 <div class="helper-role">${a.role}</div>
 <p>${a.description || ''}</p>
-<span class="helper-lock">🔒 สมัครสมาชิกเพื่อใช้งาน</span>
+<span class="helper-lock">🔒 ปลดล็อกที่แพ็กเกจ ${lockLabel}</span>
 </div>`;
 }).join('');
 } catch(err){
