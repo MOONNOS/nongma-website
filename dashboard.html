@@ -460,13 +460,14 @@ return `
 ${action}
 </div>`;
 }
+const lockLabel = LEVEL_LABEL[a.level_required] || `LV${a.level_required}`;
 return `
 <div class="tool-card locked">
 <div class="tool-avatar">${a.icon}</div>
 <h4>${a.name}</h4>
 <div class="tool-role">${a.role}</div>
 <p>${a.description || ''}</p>
-<span class="tool-status locked">🔒 ต้องอัปเกรดแพ็กเกจ</span>
+<span class="tool-status locked">🔒 ปลดล็อกที่แพ็กเกจ ${lockLabel}</span>
 </div>`;
 }).join('');
 } catch(err){
@@ -476,7 +477,7 @@ grid.innerHTML = '<div class="lib-loading">โหลดเครื่องม�
 // ===== Gem library (same logic as index.html) =====
 let allPrompts = [];
 let activeCategory = 'all';
-const LEVEL_LABEL = { 2: 'LV2 หมาลุยงาน', 3: 'LV3 หมาโตเต็มตัว', 4: 'LV4 หมาเก่งพิเศษ', 5: 'LV5 หัวหน้าฝูง' };
+const LEVEL_LABEL = { 2: 'หมาลุยงาน ฿399', 3: 'หมาโตเต็มตัว ฿799', 4: 'หมาเก่งพิเศษ ฿3,900', 5: 'หัวหน้าฝูง ฿8,900' };
 async function loadPrompts(){
 try{
 const prompts = await apiGet('/api/prompts');
@@ -533,7 +534,7 @@ ${p.image_url ? `<img class="lib-thumb" src="${p.image_url}" alt="${p.title}">` 
 <span class="lib-cat">${p.category}</span>
 <h4>${p.title}</h4>
 <p>${p.description || ''}</p>
-<div class="lock-badge"><span class="lock-icon">🔒</span> สำหรับสมาชิกระดับ ${label}</div>
+<div class="lock-badge"><span class="lock-icon">🔒</span> ปลดล็อกที่แพ็กเกจ ${label}</div>
 <a class="lib-unlock-btn" href="index.html#pricing" style="display:block;text-align:center;">ดูแพ็กเกจ</a>
 </div>
 </div>`;
