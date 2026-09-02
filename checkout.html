@@ -504,5 +504,49 @@ async function init(){
 }
 init();
 </script>
+<script>
+// ===== นับสถิติผู้เข้าชม — ยิงแบบไม่รอผล ไม่กระทบความเร็วหน้าเว็บ และพังไม่ได้เด็ดขาด =====
+(function(){
+try{
+  var API = "https://nongma-backend.onrender.com";
+  var KEY = 'nongma_visitor';
+  var vid;
+  try{
+    vid = localStorage.getItem(KEY);
+    if(!vid){ vid = Date.now().toString(36) + Math.random().toString(36).slice(2,10); localStorage.setItem(KEY, vid); }
+  } catch(e){ vid = null; }   // โหมดไม่ระบุตัวตนบางเบราว์เซอร์ห้ามเขียน localStorage
+  window.trackEvent = function(event, label){
+    try{
+      var headers = { 'Content-Type':'application/json' };
+      var tk = null;
+      try{ tk = localStorage.getItem('nongma_token'); } catch(e){}
+      if(tk) headers['Authorization'] = 'Bearer ' + tk;
+      fetch(API + '/api/analytics/view', {
+        method:'POST', headers:headers, keepalive:true,
+        body: JSON.stringify({
+          event: event || 'view',
+          page: (location.pathname.split('/').pop() || 'index.html'),
+          label: label || null,
+          referrer: document.referrer || null,
+          visitor_id: vid
+        })
+      }).catch(function(){});
+    } catch(e){}
+  };
+  window.trackEvent('view');
+  // จับตอนกดเปิด Gem / ผู้ช่วย AI (ใช้วิธีดักที่ document เลย ไม่ต้องแก้โค้ดที่สร้างการ์ด)
+  document.addEventListener('click', function(e){
+    try{
+      var a = e.target.closest && e.target.closest('.lib-copy');
+      if(!a) return;
+      var card = a.closest('.lib-card, .tool-card, .helper-card');
+      var h = card && card.querySelector('h4');
+      var ev = (card && card.classList.contains('tool-card')) ? 'tool_open' : 'gem_open';
+      window.trackEvent(ev, h ? h.textContent.trim() : null);
+    } catch(err){}
+  });
+} catch(e){}
+})();
+</script>
 </body>
 </html>
